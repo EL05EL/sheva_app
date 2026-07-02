@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/settings_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFF290D36),
       body: SafeArea(
@@ -27,21 +33,26 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pushNamed(context, '/profile'),
-                      child: const CircleAvatar(
+                      child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: Color(0xFF290D36),
-                        child:
-                            Icon(Icons.person, color: Colors.white, size: 24),
+                        backgroundColor: const Color(0xFF290D36),
+                        backgroundImage: userProvider.profileImagePath != null
+                            ? FileImage(File(userProvider.profileImagePath!))
+                            : null,
+                        child: userProvider.profileImagePath == null
+                            ? const Icon(Icons.person,
+                                color: Colors.white, size: 24)
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: GestureDetector(
                         onTap: () => Navigator.pushNamed(context, '/profile'),
-                        child: const Column(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Halo!',
                               style: TextStyle(
                                 color: Colors.white,
@@ -50,14 +61,14 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'Famuh24_',
-                              style: TextStyle(
+                              userProvider.userName,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            Text(
+                            const Text(
                               'For She, For He, For All.',
                               style: TextStyle(
                                 color: Colors.white,
@@ -186,10 +197,10 @@ class HomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'VISI SHEVA',
                       style: TextStyle(
                         color: Color(0xFF9B89EC),
@@ -197,8 +208,8 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       '"Mewujudkan masyarakat yang setara, adil, dan bebas dari kekerasan berbasis gender - dimana setiap individu dapat hidup dengan martabat dan aman."',
                       style: TextStyle(
                         color: Color(0xFF919191),
@@ -206,8 +217,8 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       '- Equality is not women\'s issue. It\'s a human issue.',
                       style: TextStyle(
                         color: Color(0xFF919191),
@@ -312,10 +323,8 @@ class HomeScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: ShapeDecoration(
-          // ignore: deprecated_member_use
           color: color.withOpacity(0.5),
           shape: RoundedRectangleBorder(
-            // ignore: deprecated_member_use
             side: BorderSide(width: 1, color: Colors.white.withOpacity(0.3)),
             borderRadius: BorderRadius.circular(15),
           ),

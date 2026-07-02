@@ -13,18 +13,12 @@ class ShevaPrivacyPage extends StatelessWidget {
         elevation: 0,
         title: const Text(
           'Kebijakan Privasi',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
-        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.sos, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/shield');
-            },
+            onPressed: () => Navigator.pushNamed(context, '/shield'),
           ),
         ],
       ),
@@ -33,28 +27,22 @@ class ShevaPrivacyPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Intro Card
+            // Intro
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: ShapeDecoration(
                 color: const Color(0xFF1A1732),
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(
-                    width: 2,
-                    color: Color(0xFF3F2A60),
-                  ),
+                  side: const BorderSide(width: 2, color: Color(0xFF3F2A60)),
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.privacy_tip,
-                    color: Color(0xFF9B89EC),
-                    size: 28,
-                  ),
+                  const Icon(Icons.privacy_tip,
+                      color: Color(0xFF9B89EC), size: 28),
                   const SizedBox(width: 12),
                   Expanded(
                     child: RichText(
@@ -62,26 +50,19 @@ class ShevaPrivacyPage extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: 'SHEVA dibangun dengan prinsip ',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                           TextSpan(
                             text: 'privacy by design',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
                           ),
                           TextSpan(
                             text:
                                 '. Semua data tersimpan di perangkat Anda - kami tidak memiliki akses ke informasi pribadi Anda.',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
                       ),
@@ -91,24 +72,22 @@ class ShevaPrivacyPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Daftar Menu Kebijakan
+            // Menu
             _buildMenuItem(
-              context,
+              context, // <-- Kirim context
               icon: Icons.data_usage,
               title: 'Data yang Dikumpulkan',
               subtitle: 'Informasi yang disimpan di perangkat Anda',
               content: '''
 SHEVA hanya menyimpan data yang Anda masukkan secara langsung di perangkat Anda, yaitu:
 
-• Nama panggilan dan identitas gender 
+• Nama panggilan dan identitas gender (opsional)
 • Riwayat modul yang telah diselesaikan
 • Preferensi tampilan aplikasi
 
 Semua data ini tersimpan secara lokal di perangkat Anda menggunakan SharedPreferences, dan tidak dikirimkan ke server eksternal mana pun.
 ''',
             ),
-
             _buildMenuItem(
               context,
               icon: Icons.security,
@@ -126,7 +105,6 @@ SHEVA menerapkan standar keamanan berikut:
 Kami tidak menjual, menyewakan, atau membagikan data Anda kepada pihak ketiga.
 ''',
             ),
-
             _buildMenuItem(
               context,
               icon: Icons.devices,
@@ -143,7 +121,6 @@ SHEVA meminta izin berikut hanya saat dibutuhkan:
 Anda dapat mencabut izin kapan saja melalui Pengaturan perangkat Anda. Pencabutan izin tidak akan mempengaruhi fitur inti SHEVA.
 ''',
             ),
-
             _buildMenuItem(
               context,
               icon: Icons.people,
@@ -160,7 +137,6 @@ Sebagai pengguna SHEVA, Anda memiliki hak penuh atas data Anda:
 Karena tidak ada server yang menyimpan data Anda, privasi Anda terlindungi secara inheren.
 ''',
             ),
-
             _buildMenuItem(
               context,
               icon: Icons.wifi_off,
@@ -177,7 +153,6 @@ SHEVA dirancang untuk berfungsi penuh tanpa koneksi internet:
 Koneksi internet hanya diperlukan untuk fitur yang secara eksplisit mengaksesnya.
 ''',
             ),
-
             _buildMenuItem(
               context,
               icon: Icons.child_care,
@@ -189,7 +164,6 @@ SHEVA dirancang untuk pengguna berusia 13 tahun ke atas. Aplikasi ini membahas t
 Kami mendorong orang tua dan wali untuk mendampingi anak-anak yang menggunakan SHEVA agar dapat memberikan konteks yang tepat untuk materi edukatif yang tersedia.
 ''',
             ),
-
             _buildMenuItem(
               context,
               icon: Icons.contact_mail,
@@ -205,32 +179,20 @@ Jika Anda memiliki pertanyaan atau kekhawatiran tentang kebijakan privasi ini, s
 Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA versi 1.0 ke atas.
 ''',
             ),
-
             const SizedBox(height: 16),
-
-            // Footer
             const Center(
               child: Text(
                 '"For She, For He, For All."',
-                style: TextStyle(
-                  color: Color(0xFFDAC4EB),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: TextStyle(color: Color(0xFFDAC4EB), fontSize: 12),
               ),
             ),
             const SizedBox(height: 8),
             const Center(
               child: Text(
                 'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                style: TextStyle(
-                  color: Color(0xFF919191),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: TextStyle(color: Color(0xFF919191), fontSize: 11),
               ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -247,58 +209,37 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GestureDetector(
-        onTap: () {
-          _showDetailDialog(context, title, content);
-        },
+        onTap: () => _showDetailDialog(context, title, content),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: ShapeDecoration(
             color: const Color(0xFF1A1732),
             shape: RoundedRectangleBorder(
-              side: const BorderSide(
-                width: 1,
-                color: Color(0x7F744AC1),
-              ),
+              side: const BorderSide(width: 1, color: Color(0x7F744AC1)),
               borderRadius: BorderRadius.circular(15),
             ),
           ),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: const Color(0xFF9B89EC),
-                size: 28,
-              ),
+              Icon(icon, color: const Color(0xFF9B89EC), size: 28),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Color(0xFFDAC4EB),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                    Text(title,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700)),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            color: Color(0xFFDAC4EB), fontSize: 12)),
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: Colors.white,
-                size: 24,
-              ),
+              const Icon(Icons.chevron_right, color: Colors.white, size: 24),
             ],
           ),
         ),
@@ -310,63 +251,46 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text(title,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold)),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: [
-              ...content.split('\n').map((line) {
-                if (line.trim().isEmpty) {
-                  return const SizedBox(height: 8);
-                } else if (line.trim().startsWith('•')) {
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 8, bottom: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '• ',
+            children: content.split('\n').map((line) {
+              if (line.trim().isEmpty) return const SizedBox(height: 8);
+              if (line.trim().startsWith('•')) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8, bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('• ',
                           style: TextStyle(
-                            color: Color(0xFF9B89EC),
-                            fontSize: 14,
-                          ),
+                              color: Color(0xFF9B89EC), fontSize: 14)),
+                      Expanded(
+                        child: Text(
+                          line.trim().substring(1).trim(),
+                          style: const TextStyle(
+                              color: Color(0xFFDAC4EB), fontSize: 14),
                         ),
-                        Expanded(
-                          child: Text(
-                            line.trim().substring(1).trim(),
-                            style: const TextStyle(
-                              color: Color(0xFFDAC4EB),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                } else if (line.trim().startsWith('•') == false &&
-                    line.trim().isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      line.trim(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
                       ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-            ],
+                    ],
+                  ),
+                );
+              }
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  line.trim(),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500),
+                ),
+              );
+            }).toList(),
           ),
         ),
         backgroundColor: const Color(0xFF290D36),
@@ -377,10 +301,8 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Tutup',
-              style: TextStyle(color: Color(0xFF919191)),
-            ),
+            child:
+                const Text('Tutup', style: TextStyle(color: Color(0xFF919191))),
           ),
         ],
       ),
