@@ -11,10 +11,9 @@ class ShevaCirclePage extends StatefulWidget {
 class _ShevaCirclePageState extends State<ShevaCirclePage> {
   String selectedCity = 'Semua Kota';
 
-  // Data komunitas
   final List<Community> communities = [
     Community(
-      name: 'Yayasan Putih',
+      name: 'Yayasan Pulih',
       city: 'Jakarta',
       address: 'Jakarta',
       mapUrl:
@@ -72,9 +71,7 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   ];
 
   List<Community> get filteredCommunities {
-    if (selectedCity == 'Semua Kota') {
-      return communities;
-    }
+    if (selectedCity == 'Semua Kota') return communities;
     return communities.where((c) => c.city == selectedCity).toList();
   }
 
@@ -82,8 +79,6 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
     }
   }
 
@@ -91,151 +86,68 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF290D36),
-      body: SingleChildScrollView(
-        child: Container(
-          width: 402,
-          height: 1198,
-          decoration: const ShapeDecoration(
-            color: Color(0xFF290D36),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(30)),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF493370),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'SHEVA Circle',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sos, color: Colors.white),
+            onPressed: () => Navigator.pushNamed(context, '/shield'),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Filter Chip
+          Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildCityChip('Semua Kota'),
+                const SizedBox(width: 8),
+                _buildCityChip('Jakarta'),
+                const SizedBox(width: 8),
+                _buildCityChip('Surabaya'),
+                const SizedBox(width: 8),
+                _buildCityChip('Yogyakarta'),
+                const SizedBox(width: 8),
+                _buildCityChip('Semarang'),
+                const SizedBox(width: 8),
+                _buildCityChip('Online / Nasional'),
+              ],
             ),
           ),
-          child: Stack(
-            children: [
-              // Header
-              Positioned(
-                left: 0,
-                top: 0,
-                child: Container(
-                  width: 402,
-                  height: 76,
-                  decoration: const ShapeDecoration(
-                    color: Color(0xFF493370),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Tombol Kembali
-              Positioned(
-                left: 16,
-                top: 20,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-              // Judul
-              Positioned(
-                left: 54,
-                top: 12,
-                child: const SizedBox(
-                  width: 223,
-                  height: 54,
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'SHEVA',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' Circle\n',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Komunitas Pro Gender Equality Indonesia ',
-                          style: TextStyle(
-                            color: Color(0xFFDAC4EB),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Filter Kota (horizontal scroll)
-              Positioned(
-                left: 0,
-                top: 88,
-                child: SizedBox(
-                  width: 398,
-                  height: 77,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 20),
-                        _buildCityChip('Semua Kota'),
-                        const SizedBox(width: 8),
-                        _buildCityChip('Jakarta'),
-                        const SizedBox(width: 8),
-                        _buildCityChip('Surabaya'),
-                        const SizedBox(width: 8),
-                        _buildCityChip('Yogyakarta'),
-                        const SizedBox(width: 8),
-                        _buildCityChip('Semarang'),
-                        const SizedBox(width: 8),
-                        _buildCityChip('Online / Nasional'),
-                        const SizedBox(width: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Daftar Komunitas (dalam container scroll)
-              Positioned(
-                left: -5,
-                top: 165,
-                child: Container(
-                  width: 411,
-                  height: 986,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: ListView.builder(
-                    itemCount: filteredCommunities.length,
-                    itemBuilder: (context, index) {
-                      final community = filteredCommunities[index];
-                      return _buildCommunityCard(community);
-                    },
-                  ),
-                ),
-              ),
-              // Footer
-              Positioned(
-                left: 35,
-                top: 1163,
-                child: const Text(
-                  'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                  style: TextStyle(
-                    color: Color(0xFF919191),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-            ],
+          // Daftar Komunitas
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: filteredCommunities.length,
+              itemBuilder: (context, index) {
+                final community = filteredCommunities[index];
+                return _buildCommunityCard(community);
+              },
+            ),
           ),
-        ),
+          // Footer
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
+              style: TextStyle(
+                color: Color(0xFF919191),
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -243,11 +155,7 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   Widget _buildCityChip(String label) {
     final isSelected = selectedCity == label;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedCity = label;
-        });
-      },
+      onTap: () => setState(() => selectedCity = label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: ShapeDecoration(
@@ -271,9 +179,8 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
 
   Widget _buildCommunityCard(Community community) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      width: 371,
-      height: 102,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: ShapeDecoration(
         color: const Color(0xFF4E2B7B),
         shape: RoundedRectangleBorder(
@@ -281,61 +188,46 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
           borderRadius: BorderRadius.circular(15),
         ),
       ),
-      child: Stack(
+      child: Row(
         children: [
-          // Nama komunitas
-          Positioned(
-            left: 30,
-            top: 25,
-            child: SizedBox(
-              width: 280,
-              height: 29,
-              child: Text(
-                community.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  community.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  community.address,
+                  style: const TextStyle(
+                    color: Color(0xFFDAC4EB),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           ),
-          // Kota
-          Positioned(
-            left: 60,
-            top: 60,
-            child: SizedBox(
-              width: 180,
-              height: 15,
-              child: Text(
-                community.address,
-                style: const TextStyle(
-                  color: Color(0xFFDAC4EB),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
+          GestureDetector(
+            onTap: () => _openMap(community.mapUrl),
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x7FFF0C0C),
               ),
-            ),
-          ),
-          // Ikon Maps (klik untuk buka Google Maps)
-          Positioned(
-            right: 20,
-            top: 30,
-            child: GestureDetector(
-              onTap: () => _openMap(community.mapUrl),
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0x7FFF0C0C),
-                ),
-                child: const Icon(
-                  Icons.location_on,
-                  color: Colors.white,
-                  size: 28,
-                ),
+              child: const Icon(
+                Icons.location_on,
+                color: Colors.white,
+                size: 28,
               ),
             ),
           ),
@@ -345,7 +237,6 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   }
 }
 
-// Model data komunitas
 class Community {
   final String name;
   final String city;
