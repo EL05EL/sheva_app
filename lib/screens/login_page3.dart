@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app_theme.dart';
 
 class LoginPage3 extends StatelessWidget {
   const LoginPage3({super.key});
@@ -6,11 +7,14 @@ class LoginPage3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF290D36),
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingXl,
+              vertical: AppTheme.spacingXxl,
+            ),
             child: Column(
               children: [
                 // LOGO
@@ -23,48 +27,40 @@ class LoginPage3 extends StatelessWidget {
                       fit: BoxFit.fill,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(AppTheme.spacingXxl),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 const Text(
                   'SHEVA hadir dengan',
-                  style: TextStyle(
-                    color: Color(0xFF9B89EC),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTheme.h2Secondary,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacingXs),
                 const Text(
                   'Informasi ini hanya tersimpan di perangkat Anda dan tidak dikirim ke mana pun',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF7E7981),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: AppTheme.captionMuted,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: AppTheme.spacingXl),
                 // Fitur 1
                 _buildFeatureItem(
                   'Perlindungan',
                   'SHEVA hadir sebagai pelindung - memberikan akses cepat ke bantuan darurat dan pelaporan',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 // Fitur 2
                 _buildFeatureItem(
                   'Edukasi',
                   'Pengetahuan adalah kekuatan. Pelajari hak-hak Anda dan bantu wujudkan kesetaraan',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 // Fitur 3
                 _buildFeatureItem(
                   'Komunitas',
                   'Bersama kita lebih kuat. Bergabunglah dengan gerakan For She, For He, For All.',
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppTheme.spacingXl),
                 // Tagline
                 const Text(
                   '"For She, For He, For All"',
@@ -74,17 +70,13 @@ class LoginPage3 extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacingXs),
                 const Text(
                   'Bergabunglah bersama ribuan individu yang memperjuangkan kesetaraan gender di Indonesia!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF837F98),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: AppTheme.captionMuted,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: AppTheme.spacingXxl),
                 // Tombol Mulai Perjalanan
                 SizedBox(
                   width: double.infinity,
@@ -96,8 +88,8 @@ class LoginPage3 extends StatelessWidget {
                       backgroundColor: const Color(0xFF270F32),
                       foregroundColor: const Color(0xFFF5F6FB),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: const BorderSide(color: Color(0xFF2A283E)),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        side: const BorderSide(color: AppTheme.borderDefault),
                       ),
                       elevation: 4,
                     ),
@@ -110,16 +102,12 @@ class LoginPage3 extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: const Text(
                     'Kembali',
-                    style: TextStyle(
-                      color: Color(0xFF918DAE),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTheme.captionMuted,
                   ),
                 ),
               ],
@@ -133,14 +121,8 @@ class LoginPage3 extends StatelessWidget {
   Widget _buildFeatureItem(String title, String description) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: ShapeDecoration(
-        color: const Color(0xFF240D2F),
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color(0xFF2A283E)),
-          borderRadius: BorderRadius.circular(15),
-        ),
-      ),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      decoration: AppTheme.cardDecoration(),
       child: Row(
         children: [
           Container(
@@ -150,28 +132,24 @@ class LoginPage3 extends StatelessWidget {
               color: Color(0xFF4E2B7B),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.star, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.star,
+              color: Colors.white,
+              size: AppTheme.iconMain,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppTheme.spacingSm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTheme.bodyBold,
                 ),
                 Text(
                   description,
-                  style: const TextStyle(
-                    color: Color(0xFF837F98),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: AppTheme.captionMuted,
                 ),
               ],
             ),

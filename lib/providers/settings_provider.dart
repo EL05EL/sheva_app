@@ -1,29 +1,17 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class SettingsProvider extends ChangeNotifier {
-  String _themeMode = 'sistem';
   String _fontSize = 'sedang';
-  bool _biometricEnabled = false;
 
   SettingsProvider() {
     _loadSettings();
   }
 
-  String get themeMode => _themeMode;
   String get fontSize => _fontSize;
-  bool get biometricEnabled => _biometricEnabled;
-
-  ThemeMode get themeModeValue {
-    switch (_themeMode) {
-      case 'terang':
-        return ThemeMode.light;
-      case 'gelap':
-        return ThemeMode.dark;
-      default:
-        return ThemeMode.system;
-    }
-  }
 
   double get fontScale {
     switch (_fontSize) {
@@ -38,16 +26,7 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    _themeMode = prefs.getString('themeMode') ?? 'sistem';
     _fontSize = prefs.getString('fontSize') ?? 'sedang';
-    _biometricEnabled = prefs.getBool('biometricEnabled') ?? false;
-    notifyListeners();
-  }
-
-  Future<void> setThemeMode(String mode) async {
-    _themeMode = mode;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('themeMode', mode);
     notifyListeners();
   }
 
@@ -58,23 +37,25 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setBiometricEnabled(bool value) async {
-    _biometricEnabled = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('biometricEnabled', value);
-    notifyListeners();
-  }
-
   Future<void> clearAllData() async {
     final prefs = await SharedPreferences.getInstance();
+    // Hapus juga file foto profil jika ada
+    final oldImagePath = prefs.getString('profileImagePath');
+    if (oldImagePath != null) {
+      final file = File(oldImagePath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
     await prefs.clear();
-    _themeMode = 'sistem';
     _fontSize = 'sedang';
-    _biometricEnabled = false;
     notifyListeners();
   }
 }
 
+// ============================================================
+// USER PROVIDER dengan Penyimpanan Foto Internal
+// ============================================================
 class UserProvider extends ChangeNotifier {
   String _userName = 'Famuh24_';
   String _userGender = 'Laki-laki';
@@ -113,14 +94,72 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setProfileImage(String? path) async {
-    _profileImagePath = path;
+  // 🔥 METHOD BARU: Menyimpan foto ke direktori internal aplikasi
+  Future<String?> _saveImageToAppDir(File imageFile) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      // Buat nama file unik berdasarkan timestamp
+      final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final newPath = '${dir.path}/$fileName';
+      // Copy file ke direktori aplikasi
+      await imageFile.copy(newPath);
+      return newPath;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 🔥 METHOD BARU: Menghapus file foto dari direktori internal
+  Future<void> _deleteImageFile(String? filePath) async {
+    if (filePath == null) return;
+    try {
+      final file = File(filePath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      // Abaikan error, file mungkin sudah tidak ada
+    }
+  }
+
+  // 🔥 UPDATE: SetProfileImage sekarang menyimpan file ke internal
+  Future<void> setProfileImage(String? originalPath) async {
+    String? finalPath;
+
+    if (originalPath != null) {
+      // Jika ada file baru, copy ke direktori internal
+      final sourceFile = File(originalPath);
+      if (await sourceFile.exists()) {
+        finalPath = await _saveImageToAppDir(sourceFile);
+      }
+    }
+
+    // Hapus foto lama jika ada dan berbeda
     final prefs = await SharedPreferences.getInstance();
-    if (path != null) {
-      await prefs.setString('profileImagePath', path);
+    final oldPath = prefs.getString('profileImagePath');
+    if (oldPath != null && oldPath != finalPath) {
+      await _deleteImageFile(oldPath);
+    }
+
+    // Simpan path baru ke SharedPreferences
+    _profileImagePath = finalPath;
+    if (finalPath != null) {
+      await prefs.setString('profileImagePath', finalPath);
     } else {
       await prefs.remove('profileImagePath');
     }
+    notifyListeners();
+  }
+
+  // 🔥 METHOD BARU: Reset foto profil (termasuk hapus file)
+  Future<void> resetProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final oldPath = prefs.getString('profileImagePath');
+    if (oldPath != null) {
+      await _deleteImageFile(oldPath);
+    }
+    _profileImagePath = null;
+    await prefs.remove('profileImagePath');
     notifyListeners();
   }
 

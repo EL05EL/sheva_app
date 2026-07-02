@@ -27,6 +27,13 @@ dependencies:
   # State Management
   provider: ^6.1.0
 
+  # File storage for profile picture
+  path_provider: ^2.1.0
+  path: ^1.9.0
+
+  # Untuk ikon custom dari Figma (SVG)
+  flutter_svg: ^2.0.10+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -34,4 +41,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Tidak ada assets karena menggunakan fallback icon
+  
+  # TEMPAT UNTUK MENARUH FILE SVG DARI FIGMA
+  # assets:
+  #   - assets/icons/
+  #   - assets/images/

@@ -2,28 +2,36 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../app_theme.dart';
 import '../providers/settings_provider.dart';
+import '../widgets/sos_button.dart';
 
-class ShevaProfilePage extends StatelessWidget {
+class ShevaProfilePage extends StatefulWidget {
   const ShevaProfilePage({super.key});
+
+  @override
+  State<ShevaProfilePage> createState() => _ShevaProfilePageState();
+}
+
+class _ShevaProfilePageState extends State<ShevaProfilePage> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF17071F),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.backgroundLight,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Profil',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        title: const Text('Profil', style: AppTheme.h2Medium),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           children: [
             // Foto Profil
@@ -32,95 +40,109 @@ class ShevaProfilePage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 61,
-                    backgroundColor: const Color(0xFF290D36),
+                    backgroundColor: AppTheme.background,
                     backgroundImage: userProvider.profileImagePath != null
                         ? FileImage(File(userProvider.profileImagePath!))
                             as ImageProvider
                         : null,
                     child: userProvider.profileImagePath == null
                         ? const Icon(Icons.person,
-                            size: 60, color: Color(0xFF736C78))
+                            size: 60, color: AppTheme.textHint)
                         : null,
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: GestureDetector(
-                      onTap: () =>
-                          _showImagePickerOptions(context, userProvider),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF9B89EC),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.edit,
-                            color: Colors.white, size: 18),
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppTheme.secondary,
+                            ),
+                          )
+                        : InkWell(
+                            onTap: () =>
+                                _showImagePickerOptions(context, userProvider),
+                            borderRadius: BorderRadius.circular(16),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: AppTheme.secondary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.edit,
+                                  color: Colors.white,
+                                  size: AppTheme.iconSmall),
+                            ),
+                          ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spacingMd),
             // Nama
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   userProvider.userName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                  style: AppTheme.bodyBold,
+                ),
+                const SizedBox(width: AppTheme.spacingXs),
+                if (!_isLoading)
+                  InkWell(
+                    onTap: () => _editName(context, userProvider),
+                    borderRadius: BorderRadius.circular(8),
+                    child: const Icon(Icons.edit,
+                        color: AppTheme.secondary, size: AppTheme.iconSmall),
                   ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () => _editName(context, userProvider),
-                  child: const Icon(Icons.edit,
-                      color: Color(0xFF9B89EC), size: 18),
-                ),
+                if (_isLoading)
+                  const SizedBox(
+                    width: AppTheme.iconSmall,
+                    height: AppTheme.iconSmall,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.secondary,
+                    ),
+                  ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppTheme.spacingXxs),
             Text(
               'Bergabung sejak ${userProvider.joinDate}',
-              style: const TextStyle(color: Color(0xFFDAC4EB), fontSize: 14),
+              style: AppTheme.caption,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             // Gender
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
-              child: const Text(
+              child: Text(
                 'Gender',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700),
+                style: AppTheme.bodyBold,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             Row(
               children: [
                 _buildGenderOption(context, 'Laki-laki', userProvider),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppTheme.spacingMd),
                 _buildGenderOption(context, 'Perempuan', userProvider),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacingXl),
             // Pengaturan & Lainnya
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Pengaturan & Lainnya',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700),
+                style: AppTheme.bodyBold,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             // Pengaturan Aplikasi
             _buildMenuItem(
               icon: Icons.settings,
@@ -128,7 +150,7 @@ class ShevaProfilePage extends StatelessWidget {
               subtitle: 'tema, ukuran teks, keamanan',
               onTap: () => Navigator.pushNamed(context, '/settings'),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spacingSm),
             // Kebijakan Privasi
             _buildMenuItem(
               icon: Icons.privacy_tip,
@@ -136,15 +158,15 @@ class ShevaProfilePage extends StatelessWidget {
               subtitle: 'lihat cara kami melindungi data anda',
               onTap: () => Navigator.pushNamed(context, '/privacy'),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacingXl),
             // Deskripsi SHEVA
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               decoration: ShapeDecoration(
-                color: const Color(0xFF291B4D),
+                color: AppTheme.surfaceCardAlt,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: Color(0xFF4E2B7B)),
-                  borderRadius: BorderRadius.circular(15),
+                  side: const BorderSide(color: AppTheme.surfaceCard2),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
               ),
               child: const Column(
@@ -153,11 +175,11 @@ class ShevaProfilePage extends StatelessWidget {
                   Text(
                     'SHEVA - SOLIDARITY HUB FOR EQUALITY, VOICE AND ACTION',
                     style: TextStyle(
-                        color: Color(0xFFDAC4EB),
+                        color: AppTheme.textSecondary,
                         fontSize: 13,
                         fontWeight: FontWeight.w700),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: AppTheme.spacingXxs),
                   Text.rich(
                     TextSpan(
                       children: [
@@ -183,11 +205,11 @@ class ShevaProfilePage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spacingMd),
             const Center(
               child: Text(
                 '"For She, For He, For All."',
-                style: TextStyle(color: Color(0xFFDAC4EB), fontSize: 11),
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 11),
               ),
             ),
           ],
@@ -196,43 +218,40 @@ class ShevaProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
-      ),
-    );
-  }
-
   Widget _buildGenderOption(
       BuildContext context, String gender, UserProvider userProvider) {
     final isSelected = userProvider.userGender == gender;
-    return GestureDetector(
-      onTap: () {
-        userProvider.setUserGender(gender);
+    return InkWell(
+      onTap: () async {
+        if (_isLoading) return;
+        setState(() => _isLoading = true);
+        await userProvider.setUserGender(gender);
+        if (mounted) setState(() => _isLoading = false);
       },
+      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+      splashColor: Colors.white.withOpacity(0.1),
+      highlightColor: Colors.white.withOpacity(0.05),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppTheme.spacingSm,
+          horizontal: AppTheme.spacingXl,
+        ),
         decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF4E2B7B) : const Color(0xFF290D36),
+          color: isSelected ? AppTheme.surfaceCard2 : AppTheme.background,
           shape: RoundedRectangleBorder(
             side: BorderSide(
               width: 2,
               color: isSelected
-                  ? const Color(0xFF9B89EC)
-                  : const Color(0xFFDB97FB),
+                  ? AppTheme.secondary
+                  : AppTheme.genderBorderUnselected,
             ),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
           ),
         ),
         child: Text(
           gender,
           style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF736C78),
+            color: isSelected ? Colors.white : AppTheme.textHint,
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
@@ -247,21 +266,27 @@ class ShevaProfilePage extends StatelessWidget {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      splashColor: Colors.white.withOpacity(0.1),
+      highlightColor: Colors.white.withOpacity(0.05),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppTheme.spacingMd,
+          horizontal: AppTheme.spacingMd,
+        ),
         decoration: ShapeDecoration(
-          color: const Color(0xFF1A1732),
+          color: AppTheme.surfaceCard,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color(0x7F744AC1)),
-            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: AppTheme.borderLight),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white, size: 24),
-            const SizedBox(width: 16),
+            Icon(icon, color: Colors.white, size: AppTheme.iconMain),
+            const SizedBox(width: AppTheme.spacingMd),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +298,7 @@ class ShevaProfilePage extends StatelessWidget {
                           fontWeight: FontWeight.w600)),
                   Text(subtitle,
                       style: const TextStyle(
-                          color: Color(0xFFDAC4EB), fontSize: 10)),
+                          color: AppTheme.textSecondary, fontSize: 10)),
                 ],
               ),
             ),
@@ -286,33 +311,32 @@ class ShevaProfilePage extends StatelessWidget {
 
   void _showImagePickerOptions(
       BuildContext context, UserProvider userProvider) {
-    final ImagePicker picker = ImagePicker();
+    final picker = ImagePicker();
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF290D36),
+      backgroundColor: AppTheme.background,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppTheme.spacingLg)),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Foto Profil',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+              style: AppTheme.h2,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.white),
-              title: const Text('Pilih dari Galeri',
-                  style: TextStyle(color: Colors.white)),
+              title: const Text('Pilih dari Galeri', style: AppTheme.body),
               onTap: () async {
                 Navigator.pop(context);
+                if (_isLoading) return;
+                setState(() => _isLoading = true);
                 final XFile? image = await picker.pickImage(
                   source: ImageSource.gallery,
                   maxWidth: 300,
@@ -320,8 +344,9 @@ class ShevaProfilePage extends StatelessWidget {
                   imageQuality: 80,
                 );
                 if (image != null) {
-                  userProvider.setProfileImage(image.path);
+                  await userProvider.setProfileImage(image.path);
                 }
+                if (mounted) setState(() => _isLoading = false);
               },
             ),
             if (userProvider.profileImagePath != null)
@@ -329,9 +354,12 @@ class ShevaProfilePage extends StatelessWidget {
                 leading: const Icon(Icons.delete, color: Colors.red),
                 title: const Text('Hapus Foto',
                     style: TextStyle(color: Colors.red)),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  userProvider.setProfileImage(null);
+                  if (_isLoading) return;
+                  setState(() => _isLoading = true);
+                  await userProvider.resetProfileImage();
+                  if (mounted) setState(() => _isLoading = false);
                 },
               ),
             ListTile(
@@ -353,38 +381,41 @@ class ShevaProfilePage extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Ubah Nama Panggilan',
             style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF290D36),
+        backgroundColor: AppTheme.background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-          side: const BorderSide(color: Color(0xFF2A283E)),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          side: const BorderSide(color: AppTheme.borderDefault),
         ),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
+          style: AppTheme.body,
           decoration: const InputDecoration(
             hintText: 'Masukkan nama baru',
-            hintStyle: TextStyle(color: Color(0xFF736C78)),
+            hintStyle: TextStyle(color: AppTheme.textHint),
             border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF2A283E))),
+                borderSide: BorderSide(color: AppTheme.borderDefault)),
             enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF2A283E))),
+                borderSide: BorderSide(color: AppTheme.borderDefault)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                const Text('Batal', style: TextStyle(color: Color(0xFF919191))),
+            child: const Text('Batal',
+                style: TextStyle(color: AppTheme.textMuted)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (controller.text.isNotEmpty) {
-                userProvider.setUserName(controller.text);
                 Navigator.pop(context);
+                if (_isLoading) return;
+                setState(() => _isLoading = true);
+                await userProvider.setUserName(controller.text);
+                if (mounted) setState(() => _isLoading = false);
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4E2B7B),
+              backgroundColor: AppTheme.surfaceCard2,
               foregroundColor: Colors.white,
             ),
             child: const Text('Simpan'),

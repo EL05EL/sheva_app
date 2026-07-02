@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../app_theme.dart';
+import '../widgets/sos_button.dart';
 
 class ShevaMapPage extends StatefulWidget {
   const ShevaMapPage({super.key});
@@ -121,37 +123,49 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
     return services.where((s) => s.city == selectedFilter).toList();
   }
 
-  void _whatsApp(String phone) async {
-    String cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '62${cleanPhone.substring(1)}';
-    }
-    if (cleanPhone == '129' || cleanPhone == '110' || cleanPhone == '118') {
-      final Uri dialUri = Uri(scheme: 'tel', path: cleanPhone);
-      if (await canLaunchUrl(dialUri)) {
-        await launchUrl(dialUri);
+  // 🔥 PERBAIKAN: Fungsi WhatsApp dengan penanganan error dan fallback
+  Future<void> _whatsApp(String phone) async {
+    try {
+      String cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+      if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62${cleanPhone.substring(1)}';
       }
-      return;
-    }
-    final Uri whatsappUri = Uri.parse('https://wa.me/$cleanPhone');
-    if (await canLaunchUrl(whatsappUri)) {
-      await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-    } else {
-      final Uri dialUri = Uri(scheme: 'tel', path: phone);
-      if (await canLaunchUrl(dialUri)) {
-        await launchUrl(dialUri);
+
+      // Untuk hotline darurat (129, 110, 118) gunakan dial telepon
+      if (cleanPhone == '129' || cleanPhone == '110' || cleanPhone == '118') {
+        final dialUri = Uri(scheme: 'tel', path: cleanPhone);
+        if (await canLaunchUrl(dialUri)) {
+          await launchUrl(dialUri);
+        } else {
+          _showSnackBar('Tidak dapat melakukan panggilan.');
+        }
+        return;
       }
+
+      // Coba WhatsApp terlebih dahulu
+      final whatsappUri = Uri.parse('https://wa.me/$cleanPhone');
+      if (await canLaunchUrl(whatsappUri)) {
+        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+      } else {
+        // Fallback: coba telepon biasa
+        final dialUri = Uri(scheme: 'tel', path: phone);
+        if (await canLaunchUrl(dialUri)) {
+          await launchUrl(dialUri);
+        } else {
+          _showSnackBar('Tidak dapat membuka WhatsApp atau panggilan.');
+        }
+      }
+    } catch (e) {
+      _showSnackBar('Terjadi kesalahan: $e');
     }
   }
 
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.primary,
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -159,16 +173,16 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF17071F),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.backgroundLight,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primaryLight,
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'SHEVA Map',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          style: AppTheme.h2Medium,
         ),
       ),
       body: Column(
@@ -176,25 +190,32 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
           // Filter
           Container(
             height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: filters.map((filter) {
                 final isSelected = selectedFilter == filter;
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: GestureDetector(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingXxs),
+                  child: InkWell(
                     onTap: () => setState(() => selectedFilter = filter),
+                    borderRadius: BorderRadius.circular(AppTheme.spacingLg),
+                    splashColor: Colors.white.withOpacity(0.1),
+                    highlightColor: Colors.white.withOpacity(0.05),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: AppTheme.spacingMd,
+                        vertical: AppTheme.spacingXs,
+                      ),
                       decoration: ShapeDecoration(
                         color: isSelected
-                            ? const Color(0xFF8A38F5)
-                            : const Color(0xFF4E2B7B),
+                            ? AppTheme.accentPurpleDark
+                            : AppTheme.surfaceCard2,
                         shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: Color(0xFF2A283E)),
-                          borderRadius: BorderRadius.circular(20),
+                          side: const BorderSide(color: AppTheme.borderDefault),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.spacingLg),
                         ),
                       ),
                       child: Text(
@@ -214,7 +235,10 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
           // List
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacingMd,
+                vertical: AppTheme.spacingSm,
+              ),
               itemCount: filteredServices.length,
               itemBuilder: (context, index) {
                 final service = filteredServices[index];
@@ -224,14 +248,10 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
           ),
           // Footer
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppTheme.spacingSm),
             child: const Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: TextStyle(
-                color: Color(0xFF919191),
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
+              style: AppTheme.tiny,
             ),
           ),
         ],
@@ -241,15 +261,9 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
 
   Widget _buildServiceCard(Service service) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: ShapeDecoration(
-        color: const Color(0xFF4E2B7B),
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 2, color: Color(0xFF270F32)),
-          borderRadius: BorderRadius.circular(15),
-        ),
-      ),
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      decoration: AppTheme.cardDecorationHeavy(),
       child: Row(
         children: [
           Expanded(
@@ -265,11 +279,11 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppTheme.spacingXxs),
                 Text(
                   '${service.address}\n${service.hours}',
                   style: const TextStyle(
-                    color: Color(0xFFDAC4EB),
+                    color: AppTheme.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
@@ -277,16 +291,21 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
               ],
             ),
           ),
-          GestureDetector(
+          // 🔥 PERBAIKAN: Tombol Telepon dengan InkWell dan onTap
+          InkWell(
             onTap: () => _whatsApp(service.phone),
+            borderRadius: BorderRadius.circular(25),
+            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withOpacity(0.1),
             child: Container(
               width: 50,
               height: 50,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x7FFF0C0C),
+                color: AppTheme.dangerBgSoft,
               ),
-              child: const Icon(Icons.phone, color: Colors.white, size: 28),
+              child: const Icon(Icons.phone,
+                  color: Colors.white, size: AppTheme.iconLarge),
             ),
           ),
         ],

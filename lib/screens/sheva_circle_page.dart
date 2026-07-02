@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../app_theme.dart';
+import '../widgets/sos_button.dart';
 
 class ShevaCirclePage extends StatefulWidget {
   const ShevaCirclePage({super.key});
@@ -75,21 +77,34 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
     return communities.where((c) => c.city == selectedCity).toList();
   }
 
-  void _openMap(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+  // 🔥 PERBAIKAN: Fungsi buka Google Maps dengan penanganan error
+  Future<void> _openMap(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      // Cek apakah bisa dibuka
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // Fallback: coba buka dengan browser
+        final browserUri = Uri.parse(url);
+        if (await canLaunchUrl(browserUri)) {
+          await launchUrl(browserUri, mode: LaunchMode.platformDefault);
+        } else {
+          _showSnackBar(
+              'Tidak dapat membuka peta. Silakan buka browser dan cari alamat ini.');
+        }
+      }
+    } catch (e) {
+      _showSnackBar('Gagal membuka peta: $e');
     }
   }
 
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.primary,
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -97,16 +112,16 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF290D36),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.background,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primaryLight,
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'SHEVA Circle',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          style: AppTheme.h2Medium,
         ),
       ),
       body: Column(
@@ -114,20 +129,20 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
           // Filter Chip
           Container(
             height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
                 _buildCityChip('Semua Kota'),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppTheme.spacingXs),
                 _buildCityChip('Jakarta'),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppTheme.spacingXs),
                 _buildCityChip('Surabaya'),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppTheme.spacingXs),
                 _buildCityChip('Yogyakarta'),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppTheme.spacingXs),
                 _buildCityChip('Semarang'),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppTheme.spacingXs),
                 _buildCityChip('Online / Nasional'),
               ],
             ),
@@ -135,7 +150,10 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
           // Daftar Komunitas
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacingMd,
+                vertical: AppTheme.spacingSm,
+              ),
               itemCount: filteredCommunities.length,
               itemBuilder: (context, index) {
                 final community = filteredCommunities[index];
@@ -145,14 +163,10 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
           ),
           // Footer
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppTheme.spacingMd),
             child: const Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: TextStyle(
-                color: Color(0xFF919191),
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
+              style: AppTheme.tiny,
             ),
           ),
         ],
@@ -162,15 +176,21 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
 
   Widget _buildCityChip(String label) {
     final isSelected = selectedCity == label;
-    return GestureDetector(
+    return InkWell(
       onTap: () => setState(() => selectedCity = label),
+      borderRadius: BorderRadius.circular(AppTheme.spacingLg),
+      splashColor: Colors.white.withOpacity(0.1),
+      highlightColor: Colors.white.withOpacity(0.05),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingMd,
+          vertical: AppTheme.spacingXs,
+        ),
         decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF8A38F5) : const Color(0xFF4E2B7B),
+          color: isSelected ? AppTheme.accentPurpleDark : AppTheme.surfaceCard2,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color(0xFF2A283E)),
-            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppTheme.borderDefault),
+            borderRadius: BorderRadius.circular(AppTheme.spacingLg),
           ),
         ),
         child: Text(
@@ -187,15 +207,9 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
 
   Widget _buildCommunityCard(Community community) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: ShapeDecoration(
-        color: const Color(0xFF4E2B7B),
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 2, color: Color(0xFF270F32)),
-          borderRadius: BorderRadius.circular(15),
-        ),
-      ),
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
+      decoration: AppTheme.cardDecorationHeavy(),
       child: Row(
         children: [
           Expanded(
@@ -211,11 +225,11 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppTheme.spacingXxs),
                 Text(
                   community.address,
                   style: const TextStyle(
-                    color: Color(0xFFDAC4EB),
+                    color: AppTheme.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
@@ -223,20 +237,21 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
               ],
             ),
           ),
-          GestureDetector(
+          // 🔥 PERBAIKAN: Tombol Map dengan InkWell dan onTap
+          InkWell(
             onTap: () => _openMap(community.mapUrl),
+            borderRadius: BorderRadius.circular(25),
+            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withOpacity(0.1),
             child: Container(
               width: 50,
               height: 50,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x7FFF0C0C),
+                color: AppTheme.dangerBgSoft,
               ),
-              child: const Icon(
-                Icons.location_on,
-                color: Colors.white,
-                size: 28,
-              ),
+              child: const Icon(Icons.location_on,
+                  color: Colors.white, size: AppTheme.iconLarge),
             ),
           ),
         ],

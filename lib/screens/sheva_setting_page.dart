@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../app_theme.dart';
 import '../providers/settings_provider.dart';
+import '../widgets/sos_button.dart';
+import '../utils/device_utils.dart';
 
-class ShevaSettingPage extends StatelessWidget {
+class ShevaSettingPage extends StatefulWidget {
   const ShevaSettingPage({super.key});
+
+  @override
+  State<ShevaSettingPage> createState() => _ShevaSettingPageState();
+}
+
+class _ShevaSettingPageState extends State<ShevaSettingPage> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF17071F),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.backgroundLight,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Pengaturan',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
+        title: const Text('Pengaturan', style: AppTheme.h2Medium),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           children: [
             // TAMPILAN
@@ -30,58 +39,20 @@ class ShevaSettingPage extends StatelessWidget {
               child: Text(
                 'TAMPILAN',
                 style: TextStyle(
-                    color: Color(0xFFE3DBED),
+                    color: AppTheme.textPurpleLight,
                     fontSize: 16,
                     fontWeight: FontWeight.w700),
               ),
             ),
-            const SizedBox(height: 8),
-            // Tema
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: ShapeDecoration(
-                color: const Color(0xFF1A1732),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 2, color: Color(0xFF3F2A60)),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Tema Warna',
-                    style: TextStyle(
-                        color: Color(0xFFF0EBF4),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  const Text(
-                    'Pilih tampilan yang nyaman di mata',
-                    style: TextStyle(color: Color(0xFFD4C5E7), fontSize: 13),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildThemeOption(context, 'Terang', 'terang'),
-                      const SizedBox(width: 12),
-                      _buildThemeOption(context, 'Gelap', 'gelap'),
-                      const SizedBox(width: 12),
-                      _buildThemeOption(context, 'Sistem', 'sistem'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spacingXs),
             // Ukuran Teks
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               decoration: ShapeDecoration(
-                color: const Color(0xFF1A1732),
+                color: AppTheme.surfaceCard,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 1, color: Color(0x7F744AC1)),
-                  borderRadius: BorderRadius.circular(15),
+                  side: const BorderSide(width: 2, color: Color(0xFF3F2A60)),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: Column(
@@ -90,18 +61,18 @@ class ShevaSettingPage extends StatelessWidget {
                   const Text(
                     'Ukuran Text',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700),
+                        color: Color(0xFFF0EBF4),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600),
                   ),
                   const Text(
-                    'Berlaku setelah menutup dan membuka ulang aplikasi',
-                    style: TextStyle(color: Color(0xFFD5C6E8), fontSize: 15),
+                    'Berlaku langsung tanpa perlu restart aplikasi',
+                    style: TextStyle(color: Color(0xFFD4C5E7), fontSize: 13),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacingSm),
                   _buildFontSizeOption(
                       context, 'Kecil', 'kecil', 'Lebih banyak konten'),
-                  const Divider(color: Color(0xFFDAC4EB)),
+                  const Divider(color: AppTheme.textSecondary),
                   _buildFontSizeOption(context, 'Sedang', 'sedang',
                       'Ukuran bawaan (direkomendasikan)'),
                   const Divider(color: Colors.white),
@@ -110,146 +81,26 @@ class ShevaSettingPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            // KEAMANAN & PRIVASI
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'KEAMANAN & PRIVASI',
-                style: TextStyle(
-                    color: Color(0xFFDAC4EB),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: ShapeDecoration(
-                color: const Color(0xFF1A1732),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 2, color: Color(0xFF3F2A60)),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 55,
-                        height: 55,
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFF0C2230),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: const Icon(Icons.fingerprint,
-                            color: Colors.white, size: 32),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Kunci Biometrik',
-                              style: TextStyle(
-                                  color: Color(0xFFF0EBF4),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              settingsProvider.biometricEnabled
-                                  ? 'Aktif'
-                                  : 'Nonaktif',
-                              style: const TextStyle(
-                                  color: Color(0xFFD4C5E7), fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Switch(
-                        value: settingsProvider.biometricEnabled,
-                        onChanged: (value) {
-                          settingsProvider.setBiometricEnabled(value);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(value
-                                  ? 'Kunci Biometrik Diaktifkan'
-                                  : 'Kunci Biometrik Dinonaktifkan'),
-                              backgroundColor: const Color(0xFF493370),
-                            ),
-                          );
-                        },
-                        activeColor: const Color(0xFF9B89EC),
-                        activeTrackColor: const Color(0xFF4E2B7B),
-                      ),
-                    ],
-                  ),
-                  const Divider(color: Color(0xFFDAC4EB)),
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/privacy'),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 55,
-                          height: 55,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFF251E4A),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: const Icon(Icons.privacy_tip,
-                              color: Colors.white, size: 32),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Kebijakan Privasi',
-                                style: TextStyle(
-                                    color: Color(0xFFF0EBF4),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              const Text(
-                                'Lihat cara kami melindungi anda',
-                                style: TextStyle(
-                                    color: Color(0xFFD4C5E7), fontSize: 13),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right, color: Colors.white),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacingXl),
             // TENTANG SHEVA
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'TENTANG SHEVA',
                 style: TextStyle(
-                    color: Color(0xFFDAC4EB),
+                    color: AppTheme.textSecondary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               decoration: ShapeDecoration(
-                color: const Color(0xFF1A1732),
+                color: AppTheme.surfaceCard,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 1, color: Color(0x7F744AC1)),
-                  borderRadius: BorderRadius.circular(15),
+                  side: const BorderSide(color: AppTheme.borderLight),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
               ),
               child: Column(
@@ -258,21 +109,22 @@ class ShevaSettingPage extends StatelessWidget {
                   const Divider(color: Color(0xFF6B7280)),
                   _buildInfoRow('Tanggal Rilis', '17 Juni 2026'),
                   const Divider(color: Color(0xFF6B7280)),
-                  _buildInfoRow('Platform', 'Web'),
+                  _buildInfoRow(
+                      'Perangkat', DeviceUtils.getFullDeviceInfo(context)),
                   const Divider(color: Color(0xFF6B7280)),
                   _buildInfoRow('Mode', 'Offline - Didukung penuh ✓'),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spacingMd),
             // Deskripsi SHEVA
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               decoration: ShapeDecoration(
-                color: const Color(0xFF1A1732),
+                color: AppTheme.surfaceCard,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 1, color: Color(0x7F744AC1)),
-                  borderRadius: BorderRadius.circular(15),
+                  side: const BorderSide(color: AppTheme.borderLight),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
               ),
               child: const Text.rich(
@@ -301,99 +153,67 @@ class ShevaSettingPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacingXl),
             // ZONA BAHAYA
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'ZONA BAHAYA',
                 style: TextStyle(
-                    color: Color(0xFFDAC4EB),
+                    color: AppTheme.textSecondary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600),
               ),
             ),
-            const SizedBox(height: 8),
-            GestureDetector(
+            const SizedBox(height: AppTheme.spacingXs),
+            InkWell(
               onTap: () => _clearAllData(context, settingsProvider),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              splashColor: Colors.red.withOpacity(0.2),
+              highlightColor: Colors.red.withOpacity(0.1),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingMd,
+                  vertical: AppTheme.spacingSm,
+                ),
                 decoration: ShapeDecoration(
-                  color: const Color(0xFF1A1732),
+                  color: AppTheme.surfaceCard,
                   shape: RoundedRectangleBorder(
                     side: const BorderSide(width: 2, color: Colors.red),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.delete_forever,
-                        color: Colors.red, size: 32),
-                    const SizedBox(width: 16),
+                    if (_isLoading)
+                      const SizedBox(
+                        width: AppTheme.iconLarge,
+                        height: AppTheme.iconLarge,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.red,
+                        ),
+                      )
+                    else
+                      const Icon(Icons.delete_forever,
+                          color: Colors.red, size: AppTheme.iconLarge),
+                    const SizedBox(width: AppTheme.spacingMd),
                     const Text(
                       'Hapus Semua Data Saya',
                       style: TextStyle(
-                          color: Color(0xFFDAC4EB),
+                          color: AppTheme.textSecondary,
                           fontSize: 20,
                           fontWeight: FontWeight.w600),
                     ),
                     const Spacer(),
-                    const Icon(Icons.chevron_right, color: Colors.red),
+                    if (!_isLoading)
+                      const Icon(Icons.chevron_right, color: Colors.red),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacingXl),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
-      ),
-    );
-  }
-
-  Widget _buildThemeOption(BuildContext context, String label, String value) {
-    final settingsProvider =
-        Provider.of<SettingsProvider>(context, listen: false);
-    final isSelected = settingsProvider.themeMode == value;
-
-    return GestureDetector(
-      onTap: () {
-        settingsProvider.setThemeMode(value);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Tema akan berubah setelah aplikasi di-restart'),
-            backgroundColor: const Color(0xFF493370),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF9B8BE4) : const Color(0xFF1A1732),
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color(0x7F744AC1)),
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFFF8F4FB),
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
         ),
       ),
     );
@@ -409,15 +229,15 @@ class ShevaSettingPage extends StatelessWidget {
       onTap: () {
         settingsProvider.setFontSize(value);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text('Ukuran teks akan berubah setelah aplikasi di-restart'),
-            backgroundColor: const Color(0xFF493370),
+          const SnackBar(
+            content: Text('Ukuran teks berubah secara instan! ✨'),
+            backgroundColor: AppTheme.primary,
+            duration: Duration(seconds: 1),
           ),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingXs),
         child: Row(
           children: [
             Expanded(
@@ -443,7 +263,7 @@ class ShevaSettingPage extends StatelessWidget {
             ),
             if (isSelected)
               const Icon(Icons.check_circle,
-                  color: Color(0xFF9B8BE4), size: 28),
+                  color: Color(0xFF9B8BE4), size: AppTheme.iconLarge),
           ],
         ),
       ),
@@ -452,7 +272,7 @@ class ShevaSettingPage extends StatelessWidget {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingXs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -464,7 +284,7 @@ class ShevaSettingPage extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-                color: Color(0xFF837F98),
+                color: AppTheme.textPurpleMuted,
                 fontSize: 20,
                 fontWeight: FontWeight.w500),
           ),
@@ -481,24 +301,27 @@ class ShevaSettingPage extends StatelessWidget {
             style: TextStyle(color: Colors.white)),
         content: const Text(
           'Tindakan ini akan menghapus semua data Anda dari perangkat ini. Data yang dihapus tidak dapat dikembalikan. Apakah Anda yakin?',
-          style: TextStyle(color: Color(0xFFDAC4EB)),
+          style: TextStyle(color: AppTheme.textSecondary),
         ),
-        backgroundColor: const Color(0xFF290D36),
+        backgroundColor: AppTheme.background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-          side: const BorderSide(color: Color(0xFF2A283E)),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          side: const BorderSide(color: AppTheme.borderDefault),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                const Text('Batal', style: TextStyle(color: Color(0xFF919191))),
+            child: const Text('Batal',
+                style: TextStyle(color: AppTheme.textMuted)),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
+              if (_isLoading) return;
+              setState(() => _isLoading = true);
               await settingsProvider.clearAllData();
-              if (context.mounted) {
+              if (mounted) {
+                setState(() => _isLoading = false);
                 Navigator.pushReplacementNamed(context, '/');
               }
             },

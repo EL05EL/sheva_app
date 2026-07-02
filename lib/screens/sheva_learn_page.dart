@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import '../app_theme.dart';
+import '../widgets/sos_button.dart';
 
 class ShevaLearnPage extends StatefulWidget {
   const ShevaLearnPage({super.key});
@@ -216,11 +218,13 @@ Kesetaraan gender dalam ketenagakerjaan berarti kesempatan sama untuk pekerjaan 
       }
     });
     await prefs.setStringList(
-        'savedModules', _savedModuleIds.map((id) => id.toString()).toList());
+      'savedModules',
+      _savedModuleIds.map((id) => id.toString()).toList(),
+    );
   }
 
   Future<void> _shareModule(Module module) async {
-    final String shareText = '''
+    final shareText = '''
 ${module.title}
 ${module.subtitle}
 
@@ -233,18 +237,6 @@ For She, For He, For All.
     await Share.share(shareText);
   }
 
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final savedModules =
@@ -252,41 +244,42 @@ For She, For He, For All.
     final displayModules = _selectedTab == 0 ? _modules : savedModules;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF17071F),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.backgroundLight,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'SHEVA Learn',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          style: AppTheme.h2Medium,
         ),
       ),
       body: Column(
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingMd,
+              vertical: AppTheme.spacingSm,
+            ),
             child: Container(
               height: 40,
-              decoration: ShapeDecoration(
-                color: const Color(0xFF240D2F),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: Color(0xFF2A283E)),
-                  borderRadius: BorderRadius.circular(30),
-                ),
+              decoration: AppTheme.cardDecoration(
+                color: AppTheme.surface,
+                borderRadius: AppTheme.radiusXl,
               ),
               child: const Row(
                 children: [
-                  SizedBox(width: 12),
-                  Icon(Icons.search, color: Color(0xFF919191), size: 20),
-                  SizedBox(width: 8),
+                  SizedBox(width: AppTheme.spacingSm),
+                  Icon(Icons.search,
+                      color: AppTheme.textMuted, size: AppTheme.spacingLg),
+                  SizedBox(width: AppTheme.spacingXs),
                   Text(
                     'Cari modul...',
                     style: TextStyle(
-                      color: Color(0xFF919191),
+                      color: AppTheme.textMuted,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -297,11 +290,11 @@ For She, For He, For All.
           ),
           // Tab
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: Row(
               children: [
                 _buildTabButton('Modul', 0),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppTheme.spacingSm),
                 _buildTabButton('Disimpan', 1),
               ],
             ),
@@ -312,11 +305,11 @@ For She, For He, For All.
                 ? const Center(
                     child: Text(
                       'Belum ada modul disimpan',
-                      style: TextStyle(color: Color(0xFF919191), fontSize: 16),
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 16),
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppTheme.spacingMd),
                     itemCount: displayModules.length,
                     itemBuilder: (context, index) {
                       return _buildModuleCard(displayModules[index]);
@@ -325,14 +318,10 @@ For She, For He, For All.
           ),
           // Footer
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppTheme.spacingSm),
             child: const Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: TextStyle(
-                color: Color(0xFF919191),
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
+              style: AppTheme.tiny,
             ),
           ),
         ],
@@ -342,15 +331,21 @@ For She, For He, For All.
 
   Widget _buildTabButton(String label, int index) {
     final isSelected = _selectedTab == index;
-    return GestureDetector(
+    return InkWell(
       onTap: () => setState(() => _selectedTab = index),
+      borderRadius: BorderRadius.circular(AppTheme.spacingLg),
+      splashColor: Colors.white.withOpacity(0.1),
+      highlightColor: Colors.white.withOpacity(0.05),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingLg,
+          vertical: AppTheme.spacingXs,
+        ),
         decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF8A38F5) : const Color(0xFF4E2B7B),
+          color: isSelected ? AppTheme.accentPurpleDark : AppTheme.surfaceCard2,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color(0xFF2A283E)),
-            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppTheme.borderDefault),
+            borderRadius: BorderRadius.circular(AppTheme.spacingLg),
           ),
         ),
         child: Text(
@@ -367,7 +362,7 @@ For She, For He, For All.
 
   Widget _buildModuleCard(Module module) {
     final isSaved = _savedModuleIds.contains(module.id);
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         Navigator.push(
           context,
@@ -381,16 +376,13 @@ For She, For He, For All.
           ),
         );
       },
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      splashColor: Colors.white.withOpacity(0.1),
+      highlightColor: Colors.white.withOpacity(0.05),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: ShapeDecoration(
-          color: const Color(0xFF4E2B7B),
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 2, color: Color(0xFF270F32)),
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
+        margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+        padding: const EdgeInsets.all(AppTheme.spacingMd),
+        decoration: AppTheme.cardDecorationHeavy(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -408,53 +400,59 @@ For She, For He, For All.
                 Row(
                   children: [
                     const Icon(Icons.access_time,
-                        color: Color(0xFFDAC4EB), size: 14),
-                    const SizedBox(width: 4),
+                        color: AppTheme.textSecondary,
+                        size: AppTheme.iconSmall),
+                    const SizedBox(width: AppTheme.spacingXxs),
                     Text(
                       module.duration,
                       style: const TextStyle(
-                          color: Color(0xFFDAC4EB), fontSize: 10),
+                          color: AppTheme.textSecondary, fontSize: 10),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppTheme.spacingXxs),
             Text(
               module.subtitle,
               style: const TextStyle(
-                color: Color(0xFFDAC4EB),
+                color: AppTheme.textSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spacingSm),
             Row(
               children: [
-                GestureDetector(
+                InkWell(
                   onTap: () => _toggleSaveModule(module.id),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingSm,
+                      vertical: AppTheme.spacingXxs,
+                    ),
                     decoration: ShapeDecoration(
-                      color: const Color(0xFF240D2F),
+                      color: AppTheme.surface,
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: Color(0xFF2A283E)),
-                        borderRadius: BorderRadius.circular(30),
+                        side: const BorderSide(color: AppTheme.borderDefault),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
                       ),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: const Color(0xFF919191),
-                          size: 16,
+                          color: AppTheme.textMuted,
+                          size: AppTheme.iconSmall,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: AppTheme.spacingXxs),
                         Text(
                           isSaved ? 'Disimpan' : 'Simpan',
                           style: const TextStyle(
-                            color: Color(0xFF919191),
+                            color: AppTheme.textMuted,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -463,27 +461,34 @@ For She, For He, For All.
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                GestureDetector(
+                const SizedBox(width: AppTheme.spacingSm),
+                InkWell(
                   onTap: () => _shareModule(module),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingSm,
+                      vertical: AppTheme.spacingXxs,
+                    ),
                     decoration: ShapeDecoration(
-                      color: const Color(0xFF240D2F),
+                      color: AppTheme.surface,
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: Color(0xFF2A283E)),
-                        borderRadius: BorderRadius.circular(30),
+                        side: const BorderSide(color: AppTheme.borderDefault),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
                       ),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.share, color: Color(0xFF919191), size: 16),
-                        SizedBox(width: 4),
+                        Icon(Icons.share,
+                            color: AppTheme.textMuted,
+                            size: AppTheme.iconSmall),
+                        SizedBox(width: AppTheme.spacingXxs),
                         Text(
                           'Bagikan',
                           style: TextStyle(
-                            color: Color(0xFF919191),
+                            color: AppTheme.textMuted,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -536,9 +541,9 @@ class ModuleDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF17071F),
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         title: Text(
@@ -547,89 +552,103 @@ class ModuleDetailPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
+            icon: Icon(
+              isSaved ? Icons.bookmark : Icons.bookmark_border,
+              size: AppTheme.iconMain,
+            ),
             onPressed: onToggleSave,
+            padding: const EdgeInsets.all(AppTheme.spacingXs),
+            constraints: const BoxConstraints(
+              minWidth: AppTheme.touchTarget,
+              minHeight: AppTheme.touchTarget,
+            ),
           ),
           IconButton(
-            icon: const Icon(Icons.share),
+            icon: const Icon(Icons.share, size: AppTheme.iconMain),
             onPressed: onShare,
+            padding: const EdgeInsets.all(AppTheme.spacingXs),
+            constraints: const BoxConstraints(
+              minWidth: AppTheme.touchTarget,
+              minHeight: AppTheme.touchTarget,
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               module.subtitle,
               style: const TextStyle(
-                color: Color(0xFFDAC4EB),
+                color: AppTheme.textSecondary,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             Row(
               children: [
                 const Icon(Icons.access_time,
-                    color: Color(0xFFDAC4EB), size: 16),
-                const SizedBox(width: 4),
+                    color: AppTheme.textSecondary, size: AppTheme.iconSmall),
+                const SizedBox(width: AppTheme.spacingXxs),
                 Text(
                   module.duration,
-                  style:
-                      const TextStyle(color: Color(0xFFDAC4EB), fontSize: 12),
+                  style: const TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 12),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             Container(
-              padding: const EdgeInsets.all(16),
-              decoration: ShapeDecoration(
-                color: const Color(0xFF240D2F),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: Color(0xFF2A283E)),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
+              decoration: AppTheme.cardDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: _buildContentParagraphs(module.content),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton.icon(
                   onPressed: onToggleSave,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4E2B7B),
+                    backgroundColor: AppTheme.surfaceCard2,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+                      horizontal: AppTheme.spacingXl,
+                      vertical: AppTheme.spacingSm,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      side: const BorderSide(color: Color(0xFF2A283E)),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                      side: const BorderSide(color: AppTheme.borderDefault),
                     ),
                   ),
-                  icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
+                  icon: Icon(
+                    isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    size: AppTheme.iconMain,
+                  ),
                   label: Text(isSaved ? 'Hapus dari Simpanan' : 'Simpan Modul'),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppTheme.spacingMd),
                 ElevatedButton.icon(
                   onPressed: onShare,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4E2B7B),
+                    backgroundColor: AppTheme.surfaceCard2,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+                      horizontal: AppTheme.spacingXl,
+                      vertical: AppTheme.spacingSm,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      side: const BorderSide(color: Color(0xFF2A283E)),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                      side: const BorderSide(color: AppTheme.borderDefault),
                     ),
                   ),
-                  icon: const Icon(Icons.share),
+                  icon: const Icon(Icons.share, size: AppTheme.iconMain),
                   label: const Text('Bagikan'),
                 ),
               ],
@@ -645,13 +664,13 @@ class ModuleDetailPage extends StatelessWidget {
     final List<Widget> widgets = [];
     for (var line in lines) {
       if (line.trim().isEmpty) {
-        widgets.add(const SizedBox(height: 8));
+        widgets.add(const SizedBox(height: AppTheme.spacingXs));
       } else if (line.startsWith('#')) {
         final level = line.split(' ').first.length;
         final text = line.substring(level).trim();
         widgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingXs),
             child: Text(
               text,
               style: TextStyle(
@@ -666,17 +685,18 @@ class ModuleDetailPage extends StatelessWidget {
         final text = line.trim().substring(1).trim();
         widgets.add(
           Padding(
-            padding: const EdgeInsets.only(left: 12, bottom: 4),
+            padding: const EdgeInsets.only(
+                left: AppTheme.spacingSm, bottom: AppTheme.spacingXxs),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('• ',
-                    style: TextStyle(color: Color(0xFF9B89EC), fontSize: 14)),
+                    style: TextStyle(color: AppTheme.secondary, fontSize: 14)),
                 Expanded(
                   child: Text(
                     text,
-                    style:
-                        const TextStyle(color: Color(0xFFDAC4EB), fontSize: 14),
+                    style: const TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 14),
                   ),
                 ),
               ],
@@ -686,11 +706,11 @@ class ModuleDetailPage extends StatelessWidget {
       } else {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+            padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingXxs),
             child: Text(
               line,
               style: const TextStyle(
-                color: Color(0xFFDAC4EB),
+                color: AppTheme.textSecondary,
                 fontSize: 14,
                 height: 1.6,
               ),

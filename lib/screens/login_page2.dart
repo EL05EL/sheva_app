@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../app_theme.dart';
 
 class LoginPage2 extends StatefulWidget {
   const LoginPage2({super.key});
@@ -23,8 +24,10 @@ class _LoginPage2State extends State<LoginPage2> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', _nameController.text);
     await prefs.setString('userGender', _selectedGender);
-    await prefs.setString('joinDate',
-        '${_getMonthName(DateTime.now().month)} ${DateTime.now().year}');
+    await prefs.setString(
+      'joinDate',
+      '${_getMonthName(DateTime.now().month)} ${DateTime.now().year}',
+    );
 
     if (mounted) {
       Navigator.pushNamed(context, '/login3');
@@ -58,11 +61,14 @@ class _LoginPage2State extends State<LoginPage2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF290D36),
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingXl,
+              vertical: AppTheme.spacingXxl,
+            ),
             child: Column(
               children: [
                 // LOGO
@@ -75,90 +81,69 @@ class _LoginPage2State extends State<LoginPage2> {
                       fit: BoxFit.fill,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(AppTheme.spacingXxl),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 const Text(
                   'Kenalkan diri Anda',
-                  style: TextStyle(
-                    color: Color(0xFF9B89EC),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTheme.h2Secondary,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacingXs),
                 const Text(
                   'Informasi ini hanya tersimpan di perangkat Anda dan tidak dikirim ke mana pun',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF7E7981),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: AppTheme.captionMuted,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: AppTheme.spacingXl),
                 // Nama Panggilan
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Nama Panggilan',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: AppTheme.body,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacingXs),
                 Container(
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFF240D2F),
-                    shape: RoundedRectangleBorder(
-                      side: const BorderSide(color: Color(0xFF2A283E)),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
+                  decoration: AppTheme.cardDecoration(),
                   child: TextField(
                     controller: _nameController,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Masukan nama anda',
-                      hintStyle:
-                          TextStyle(color: Color(0xFF736C78), fontSize: 14),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      hintStyle: AppTheme.labelMuted,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: AppTheme.spacingMd,
+                        vertical: AppTheme.spacingSm,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppTheme.spacingLg),
                 // Identitas Gender
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Identitas gender',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: AppTheme.body,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacingXs),
                 Row(
                   children: [
                     Expanded(
                       child: _buildGenderOption('Laki-laki'),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacingSm),
                     Expanded(
                       child: _buildGenderOption('Perempuan'),
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: AppTheme.spacingXxl),
                 // Tombol Lanjutkan
                 SizedBox(
                   width: double.infinity,
@@ -169,8 +154,8 @@ class _LoginPage2State extends State<LoginPage2> {
                       backgroundColor: const Color(0xFF270F32),
                       foregroundColor: const Color(0xFFF5F6FB),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: const BorderSide(color: Color(0xFF2A283E)),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        side: const BorderSide(color: AppTheme.borderDefault),
                       ),
                       elevation: 4,
                     ),
@@ -183,16 +168,12 @@ class _LoginPage2State extends State<LoginPage2> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: const Text(
                     'Kembali',
-                    style: TextStyle(
-                      color: Color(0xFF918DAE),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTheme.captionMuted,
                   ),
                 ),
               ],
@@ -208,24 +189,22 @@ class _LoginPage2State extends State<LoginPage2> {
     return GestureDetector(
       onTap: () => setState(() => _selectedGender = gender),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingMd),
         decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF3D1A4A) : const Color(0xFF240D2F),
+          color: isSelected ? const Color(0xFF3D1A4A) : AppTheme.surface,
           shape: RoundedRectangleBorder(
             side: BorderSide(
               width: 1,
-              color: isSelected
-                  ? const Color(0xFF9B89EC)
-                  : const Color(0xFF2A283E),
+              color: isSelected ? AppTheme.secondary : AppTheme.borderDefault,
             ),
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
         child: Center(
           child: Text(
             gender,
             style: TextStyle(
-              color: isSelected ? Colors.white : const Color(0xFF736C78),
+              color: isSelected ? Colors.white : AppTheme.textHint,
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),

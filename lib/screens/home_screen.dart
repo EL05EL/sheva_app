@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../app_theme.dart';
 import '../providers/settings_provider.dart';
+import '../widgets/sos_button.dart';
+import '../widgets/stat_card.dart';
+import '../widgets/menu_grid_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,26 +25,25 @@ class _HomeScreenState extends State<HomeScreen> {
       title: '376.529',
       subtitle: 'Kasus KBG (2025)',
       source: 'Komnas Perempuan CATAHU 2025',
-      color: Color(0xB2FF0909),
+      color: const Color(0xB2FF0909),
     ),
     StatCardData(
       title: '8.543',
       subtitle: 'Pengaduan KBGO (2025)',
       source: 'Komnas Perempuan CATAHU 2025',
-      color: Color(0xB2005DFF),
+      color: const Color(0xB2005DFF),
     ),
     StatCardData(
       title: '15-19 Tahun',
       subtitle: 'Usia Korban KBGO Terbanyak',
       source: 'SPHPN 2024',
-      color: Color(0xB2FF6B09),
+      color: const Color(0xB2FF6B09),
     ),
   ];
 
   @override
   void initState() {
     super.initState();
-    // Auto-scroll setiap 4 detik
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (_pageController.hasClients) {
         final nextPage = (_currentPage + 1) % _statCards.length;
@@ -65,8 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF290D36),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.background,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -76,35 +79,39 @@ class _HomeScreenState extends State<HomeScreen> {
               // Header
               Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingMd,
+                  vertical: AppTheme.spacingSm,
+                ),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF493370),
+                  color: AppTheme.primary,
                   borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
+                    bottomLeft: Radius.circular(AppTheme.spacingXl),
+                    bottomRight: Radius.circular(AppTheme.spacingXl),
                   ),
                 ),
                 child: Row(
                   children: [
-                    GestureDetector(
+                    InkWell(
                       onTap: () => Navigator.pushNamed(context, '/profile'),
+                      borderRadius: BorderRadius.circular(20),
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: const Color(0xFF290D36),
+                        backgroundColor: AppTheme.background,
                         backgroundImage: userProvider.profileImagePath != null
                             ? FileImage(File(userProvider.profileImagePath!))
                             : null,
                         child: userProvider.profileImagePath == null
                             ? const Icon(Icons.person,
-                                color: Colors.white, size: 24)
+                                color: Colors.white, size: AppTheme.iconMain)
                             : null,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacingSm),
                     Expanded(
-                      child: GestureDetector(
+                      child: InkWell(
                         onTap: () => Navigator.pushNamed(context, '/profile'),
+                        borderRadius: BorderRadius.circular(8),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -136,25 +143,38 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.notifications_none,
-                              color: Colors.white),
-                          onPressed: () {},
+                    // Popup Menu
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert,
+                          color: Colors.white, size: AppTheme.iconMain),
+                      onSelected: (value) {
+                        if (value == 'settings') {
+                          Navigator.pushNamed(context, '/settings');
+                        } else if (value == 'privacy') {
+                          Navigator.pushNamed(context, '/privacy');
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem<String>(
+                          value: 'settings',
+                          child: Text('Pengaturan'),
                         ),
-                        IconButton(
-                          icon:
-                              const Icon(Icons.more_vert, color: Colors.white),
-                          onPressed: () {},
+                        const PopupMenuItem<String>(
+                          value: 'privacy',
+                          child: Text('Kebijakan Privasi'),
                         ),
                       ],
+                      padding: const EdgeInsets.all(AppTheme.spacingXs),
+                      constraints: const BoxConstraints(
+                        minWidth: AppTheme.touchTarget,
+                        minHeight: AppTheme.touchTarget,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              // ===== CAROUSEL STATISTIK (AUTO-SCROLL) =====
+              const SizedBox(height: AppTheme.spacingMd),
+              // Carousel Statistik
               SizedBox(
                 height: 100,
                 child: Stack(
@@ -162,27 +182,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     PageView.builder(
                       controller: _pageController,
                       onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
+                        setState(() => _currentPage = index);
                       },
                       itemCount: _statCards.length,
                       itemBuilder: (context, index) {
                         final card = _statCards[index];
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildStatCard(
-                            card.title,
-                            card.subtitle,
-                            card.source,
-                            card.color,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppTheme.spacingMd),
+                          child: StatCard(
+                            title: card.title,
+                            subtitle: card.subtitle,
+                            source: card.source,
+                            color: card.color,
                           ),
                         );
                       },
                     ),
                     // Indikator dot
                     Positioned(
-                      bottom: 4,
+                      bottom: AppTheme.spacingXxs,
                       left: 0,
                       right: 0,
                       child: Row(
@@ -190,12 +209,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: List.generate(
                           _statCards.length,
                           (index) => Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: AppTheme.spacingXxs),
                             width: _currentPage == index ? 24 : 8,
                             height: 6,
                             decoration: BoxDecoration(
                               color: _currentPage == index
-                                  ? const Color(0xFF9B89EC)
+                                  ? AppTheme.secondary
                                   : Colors.white.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(3),
                             ),
@@ -206,21 +226,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              // ===== SHEVA SHIELD - FULL WIDTH CARD =====
+              const SizedBox(height: AppTheme.spacingMd),
+              // SHEVA Shield
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GestureDetector(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
+                child: InkWell(
                   onTap: () => Navigator.pushNamed(context, '/shield'),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 16),
+                      vertical: AppTheme.spacingLg,
+                      horizontal: AppTheme.spacingMd,
+                    ),
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFD90000).withOpacity(0.5),
+                      color: AppTheme.dangerDark.withOpacity(0.5),
                       shape: RoundedRectangleBorder(
                         side: const BorderSide(width: 1, color: Colors.white),
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                     ),
                     child: Row(
@@ -235,10 +261,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: const Icon(
                             Icons.shield,
                             color: Colors.white,
-                            size: 28,
+                            size: AppTheme.iconLarge,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: AppTheme.spacingMd),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,67 +291,62 @@ class _HomeScreenState extends State<HomeScreen> {
                         const Icon(
                           Icons.chevron_right,
                           color: Colors.white,
-                          size: 28,
+                          size: AppTheme.iconLarge,
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              // Grid Menu (4 item: Report, Learn, Map, Circle)
+              const SizedBox(height: AppTheme.spacingMd),
+              // Grid Menu
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
                 child: GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  crossAxisSpacing: AppTheme.spacingSm,
+                  mainAxisSpacing: AppTheme.spacingSm,
                   childAspectRatio: 1.2,
-                  children: [
-                    _buildMenuCard(
-                      'SHEVA Report',
-                      'Laporan anonim KBG/O',
-                      const Color(0xFF5139BE),
-                      '/report',
-                      context,
+                  children: const [
+                    MenuGridCard(
+                      title: 'SHEVA Report',
+                      subtitle: 'Laporan anonim KBG/O',
+                      color: Color(0xFF5139BE),
+                      route: '/report',
                     ),
-                    _buildMenuCard(
-                      'SHEVA Learn',
-                      'Edukasi gender equality',
-                      const Color(0xFF00829F),
-                      '/learn',
-                      context,
+                    MenuGridCard(
+                      title: 'SHEVA Learn',
+                      subtitle: 'Edukasi gender equality',
+                      color: Color(0xFF00829F),
+                      route: '/learn',
                     ),
-                    _buildMenuCard(
-                      'SHEVA Map',
-                      'Layanan bantuan terdekat',
-                      const Color(0xFFCB338F),
-                      '/map',
-                      context,
+                    MenuGridCard(
+                      title: 'SHEVA Map',
+                      subtitle: 'Layanan bantuan terdekat',
+                      color: Color(0xFFCB338F),
+                      route: '/map',
                     ),
-                    _buildMenuCard(
-                      'SHEVA Circle',
-                      'HeForShe - sekutu setara',
-                      const Color(0xFF744AC1),
-                      '/circle',
-                      context,
+                    MenuGridCard(
+                      title: 'SHEVA Circle',
+                      subtitle: 'HeForShe - sekutu setara',
+                      color: Color(0xFF744AC1),
+                      route: '/circle',
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              // VISI SHEVA
+              const SizedBox(height: AppTheme.spacingMd),
+              // Visi
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: ShapeDecoration(
-                  color: const Color(0xFF240D2F),
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Color(0xFF2A283E)),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
+                padding: const EdgeInsets.all(AppTheme.spacingMd),
+                decoration: AppTheme.cardDecoration(
+                  color: AppTheme.surface,
+                  borderColor: AppTheme.borderDefault,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,25 +354,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'VISI SHEVA',
                       style: TextStyle(
-                        color: Color(0xFF9B89EC),
+                        color: AppTheme.secondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppTheme.spacingXs),
                     const Text(
                       '"Mewujudkan masyarakat yang setara, adil, dan bebas dari kekerasan berbasis gender - dimana setiap individu dapat hidup dengan martabat dan aman."',
                       style: TextStyle(
-                        color: Color(0xFF919191),
+                        color: AppTheme.textMuted,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppTheme.spacingXs),
                     const Text(
                       '- Equality is not women\'s issue. It\'s a human issue.',
                       style: TextStyle(
-                        color: Color(0xFF919191),
+                        color: AppTheme.textMuted,
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w500,
@@ -360,121 +381,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spacingMd),
               // Footer
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingMd,
+                  vertical: AppTheme.spacingSm,
+                ),
                 child: const Text(
                   'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                  style: TextStyle(
-                    color: Color(0xFF919191),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: AppTheme.tiny,
                 ),
               ),
               const SizedBox(height: 80),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-      String title, String subtitle, String source, Color color) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: ShapeDecoration(
-        color: const Color(0x7F744AC1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: color,
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            source,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuCard(String title, String subtitle, Color color,
-      String route, BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: ShapeDecoration(
-          color: color.withOpacity(0.5),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(width: 1, color: Colors.white.withOpacity(0.3)),
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
       ),
     );
   }

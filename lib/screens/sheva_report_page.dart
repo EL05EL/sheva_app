@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../app_theme.dart';
+import '../widgets/sos_button.dart';
+import '../widgets/hotline_tile.dart';
 
 class ShevaReportPage extends StatefulWidget {
   const ShevaReportPage({super.key});
@@ -13,6 +16,7 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
   String? _selectedLocation;
   final TextEditingController _descriptionController = TextEditingController();
   bool _isAnonym = true;
+  bool _isLoading = false;
 
   final List<String> _reportTypes = [
     'KBG Fisik',
@@ -33,23 +37,34 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
     'Lainnya',
   ];
 
+  // 🔥 TAMBAHKAN CS Fadil di daftar hotline
   final List<Hotline> _hotlines = [
     Hotline(
-        name: 'SAPA 129',
-        phone: '129',
-        description: 'Hotline Nasional 24 jam untuk korban kekerasan'),
+      name: 'SAPA 129',
+      phone: '129',
+      description: 'Hotline Nasional 24 jam untuk korban kekerasan',
+    ),
     Hotline(
-        name: 'Komnas Perempuan',
-        phone: '08123456787',
-        description: 'Komisi Nasional Anti Kekerasan terhadap Perempuan'),
+      name: 'Komnas Perempuan',
+      phone: '08123456787',
+      description: 'Komisi Nasional Anti Kekerasan terhadap Perempuan',
+    ),
     Hotline(
-        name: 'LBH APIK',
-        phone: '08123456786',
-        description: 'Lembaga Bantuan Hukum untuk perempuan'),
+      name: 'LBH APIK',
+      phone: '08123456786',
+      description: 'Lembaga Bantuan Hukum untuk perempuan',
+    ),
     Hotline(
-        name: 'Yayasan Pulih',
-        phone: '08123456785',
-        description: 'Layanan konseling dan pemulihan trauma'),
+      name: 'Yayasan Pulih',
+      phone: '08123456785',
+      description: 'Layanan konseling dan pemulihan trauma',
+    ),
+    // 🔥 TAMBAHAN: CS SHEVA - Fadil
+    Hotline(
+      name: 'CS SHEVA - Fadil',
+      phone: '081243265263',
+      description: 'Customer Service SHEVA (24 jam)',
+    ),
   ];
 
   Future<void> _sendReportToWhatsApp(Hotline hotline) async {
@@ -58,7 +73,10 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
       return;
     }
 
-    String message = '''
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    final message = '''
 📋 LAPORAN SHEVA REPORT
 
 📅 Tanggal: ${DateTime.now().toString().split(' ')[0]}
@@ -82,14 +100,20 @@ For She, For He, For All.
       cleanPhone = '62${cleanPhone.substring(1)}';
     }
 
-    String encodedMessage = Uri.encodeComponent(message);
-    String url = 'https://wa.me/$cleanPhone?text=$encodedMessage';
+    final encodedMessage = Uri.encodeComponent(message);
+    final url = 'https://wa.me/$cleanPhone?text=$encodedMessage';
+    final uri = Uri.parse(url);
 
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      _showSnackBar('Tidak dapat membuka WhatsApp.');
+    setState(() => _isLoading = false);
+
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showSnackBar('Tidak dapat membuka WhatsApp.');
+      }
+    } catch (e) {
+      _showSnackBar('Terjadi kesalahan: $e');
     }
   }
 
@@ -97,20 +121,8 @@ For She, For He, For All.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFF493370),
+        backgroundColor: AppTheme.primary,
         duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  Widget _buildSOSButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: const Color(0xFFFF0C0C),
-      foregroundColor: Colors.white,
-      child: const Icon(Icons.sos, size: 32),
-      shape: const CircleBorder(
-        side: BorderSide(color: Colors.white, width: 1),
       ),
     );
   }
@@ -118,85 +130,75 @@ For She, For He, For All.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF290D36),
-      floatingActionButton: _buildSOSButton(context),
+      backgroundColor: AppTheme.background,
+      floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF48336F),
+        backgroundColor: AppTheme.primaryLight,
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'SHEVA Report',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          style: AppTheme.h2Medium,
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTheme.spacingMd),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Info
             Container(
-              padding: const EdgeInsets.all(12),
-              decoration: ShapeDecoration(
-                color: const Color(0xFF240D2F),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: Color(0xFF2A283E)),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+              padding: const EdgeInsets.all(AppTheme.spacingSm),
+              decoration: AppTheme.cardDecoration(),
               child: const Text(
                 'Semua laporan bersifat rahasia dan dienkripsi. Data anda tidak akan dibagikan tanpa persetujuan anda. Anda bisa memilih untuk melapor secara anonim.',
-                style: TextStyle(
-                  color: Color(0xFF919191),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTheme.label,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             // Jenis Laporan
             const Text(
               'Jenis Laporan*',
               style: TextStyle(
-                color: Color(0xFFE5CFF6),
+                color: AppTheme.textPurpleLight,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: AppTheme.spacingXs,
+              runSpacing: AppTheme.spacingXs,
               children: _reportTypes.map((type) {
                 final isSelected = _selectedReportType == type;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedReportType = type;
-                    });
-                  },
+                return InkWell(
+                  onTap: () => setState(() => _selectedReportType = type),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingMd,
+                      vertical: AppTheme.spacingXs,
+                    ),
                     decoration: ShapeDecoration(
-                      color: isSelected
-                          ? const Color(0xFF4E2B7B)
-                          : const Color(0xFF240D2F),
+                      color:
+                          isSelected ? AppTheme.surfaceCard2 : AppTheme.surface,
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
                           color: isSelected
-                              ? const Color(0xFF9B89EC)
-                              : const Color(0xFF2A283E),
+                              ? AppTheme.secondary
+                              : AppTheme.borderDefault,
                         ),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
                     ),
                     child: Text(
                       type,
                       style: TextStyle(
                         color:
-                            isSelected ? Colors.white : const Color(0xFFDAC4EB),
+                            isSelected ? Colors.white : AppTheme.textSecondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -205,17 +207,17 @@ For She, For He, For All.
                 );
               }).toList(),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             // Lokasi
             const Text(
               'Lokasi Kejadian',
               style: TextStyle(
-                color: Color(0xFFE5CFF6),
+                color: AppTheme.textPurpleLight,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             SizedBox(
               height: 50,
               child: ListView(
@@ -223,27 +225,28 @@ For She, For He, For All.
                 children: _locations.map((location) {
                   final isSelected = _selectedLocation == location;
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedLocation = location;
-                        });
-                      },
+                    padding: const EdgeInsets.only(right: AppTheme.spacingXs),
+                    child: InkWell(
+                      onTap: () => setState(() => _selectedLocation = location),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      splashColor: Colors.white.withOpacity(0.1),
+                      highlightColor: Colors.white.withOpacity(0.05),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: AppTheme.spacingSm,
+                          vertical: AppTheme.spacingXs,
+                        ),
                         decoration: ShapeDecoration(
-                          color: isSelected
-                              ? const Color(0x7F744AC1)
-                              : const Color(0xFF240D2F),
+                          color:
+                              isSelected ? AppTheme.chipBg : AppTheme.surface,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
                               color: isSelected
-                                  ? const Color(0xFF9B89EC)
-                                  : const Color(0xFF2A283E),
+                                  ? AppTheme.secondary
+                                  : AppTheme.borderDefault,
                             ),
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusMd),
                           ),
                         ),
                         child: Text(
@@ -251,7 +254,7 @@ For She, For He, For All.
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : const Color(0xFFDAC4EB),
+                                : AppTheme.textSecondary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -262,63 +265,56 @@ For She, For He, For All.
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             // Deskripsi
             const Text(
               'Deskripsi Kejadian*',
               style: TextStyle(
-                color: Color(0xFFE5CFF6),
+                color: AppTheme.textPurpleLight,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             Container(
               height: 120,
-              padding: const EdgeInsets.all(12),
-              decoration: ShapeDecoration(
-                color: const Color(0xFF240D2F),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: Color(0xFF2A283E)),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+              padding: const EdgeInsets.all(AppTheme.spacingSm),
+              decoration: AppTheme.cardDecoration(),
               child: TextField(
                 controller: _descriptionController,
                 maxLines: null,
                 expands: true,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                style: AppTheme.body,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   hintText:
                       'Ceritakan apa yang terjadi. Anda tidak perlu menyertakan detail yang membuat Anda tidak nyaman...',
-                  hintStyle: TextStyle(color: Color(0xFF919191), fontSize: 13),
+                  hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingXs),
             Align(
               alignment: Alignment.centerRight,
               child: Text(
                 '${_descriptionController.text.length} Karakter',
-                style: const TextStyle(color: Color(0xFFC4C5C8), fontSize: 10),
+                style: const TextStyle(
+                  color: Color(0xFFC4C5C8),
+                  fontSize: 10,
+                ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppTheme.spacingLg),
             // Laporan Anonim
             Row(
               children: [
                 Switch(
                   value: _isAnonym,
-                  onChanged: (value) {
-                    setState(() {
-                      _isAnonym = value;
-                    });
-                  },
-                  activeColor: const Color(0xFF9B89EC),
-                  activeTrackColor: const Color(0xFF4E2B7B),
+                  onChanged: (value) => setState(() => _isAnonym = value),
+                  activeColor: AppTheme.secondary,
+                  activeTrackColor: AppTheme.surfaceCard2,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppTheme.spacingXs),
                 const Expanded(
                   child: Text.rich(
                     TextSpan(
@@ -334,7 +330,7 @@ For She, For He, For All.
                         TextSpan(
                           text: 'Nama anda tidak akan dicantumkan',
                           style: TextStyle(
-                            color: Color(0xFF837F98),
+                            color: AppTheme.textPurpleMuted,
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                           ),
@@ -345,106 +341,94 @@ For She, For He, For All.
                 ),
               ],
             ),
-            const Divider(color: Color(0xFF2A283E)),
-            const SizedBox(height: 8),
+            const Divider(color: AppTheme.borderDefault),
+            const SizedBox(height: AppTheme.spacingXs),
             // Tombol Kirim
             SizedBox(
               width: double.infinity,
               height: 53,
               child: ElevatedButton(
-                onPressed: () {
-                  if (_selectedReportType == null) {
-                    _showSnackBar(
-                        'Silakan pilih jenis laporan terlebih dahulu.');
-                    return;
-                  }
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: const Color(0xFF290D36),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(20)),
-                    ),
-                    builder: (context) => Container(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'Kirim Laporan ke:',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        if (_selectedReportType == null) {
+                          _showSnackBar(
+                              'Silakan pilih jenis laporan terlebih dahulu.');
+                          return;
+                        }
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: AppTheme.background,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(AppTheme.spacingLg)),
+                          ),
+                          builder: (context) => Container(
+                            padding: const EdgeInsets.all(AppTheme.spacingLg),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Kirim Laporan ke:',
+                                  style: AppTheme.h2,
+                                ),
+                                const SizedBox(height: AppTheme.spacingMd),
+                                ..._hotlines.map((hotline) => Column(
+                                      children: [
+                                        HotlineTile(
+                                          name: hotline.name,
+                                          phone: hotline.phone,
+                                          description: hotline.description,
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            _sendReportToWhatsApp(hotline);
+                                          },
+                                        ),
+                                        const Divider(
+                                            color: AppTheme.borderDefault),
+                                      ],
+                                    )),
+                                const SizedBox(height: AppTheme.spacingXs),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Batal',
+                                      style: AppTheme.captionMuted),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ..._hotlines
-                              .map((hotline) => Column(
-                                    children: [
-                                      ListTile(
-                                        leading: const Icon(Icons.phone,
-                                            color: Colors.green),
-                                        title: Text(
-                                          hotline.name,
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
-                                        subtitle: Text(
-                                          hotline.description,
-                                          style: const TextStyle(
-                                              color: Color(0xFF919191),
-                                              fontSize: 12),
-                                        ),
-                                        trailing: const Icon(
-                                            Icons.chevron_right,
-                                            color: Colors.white),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                          _sendReportToWhatsApp(hotline);
-                                        },
-                                      ),
-                                      const Divider(color: Color(0xFF2A283E)),
-                                    ],
-                                  ))
-                              .toList(),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Batal',
-                              style: TextStyle(color: Color(0xFF919191)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF270F32),
+                  backgroundColor: AppTheme.surfaceCardDark,
                   foregroundColor: const Color(0xFFF5F6FB),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    side: const BorderSide(color: Color(0xFF2A283E)),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    side: const BorderSide(color: AppTheme.borderDefault),
                   ),
-                  elevation: 4,
+                  elevation: AppTheme.elevationMedium,
                 ),
-                child: const Text(
-                  'Kirim Laporan',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Kirim Laporan',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spacingMd),
             const Center(
               child: Text(
                 'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                style: TextStyle(
-                  color: Color(0xFF919191),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: AppTheme.tiny,
               ),
             ),
           ],
