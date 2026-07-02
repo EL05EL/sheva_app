@@ -13,18 +13,14 @@ class ShevaProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF17071F),
+      floatingActionButton: _buildSOSButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
         backgroundColor: const Color(0xFF493370),
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('Profil',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sos, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/shield'),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -196,6 +192,18 @@ class ShevaProfilePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSOSButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => Navigator.pushNamed(context, '/shield'),
+      backgroundColor: const Color(0xFFFF0C0C),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.sos, size: 32),
+      shape: const CircleBorder(
+        side: BorderSide(color: Colors.white, width: 1),
       ),
     );
   }

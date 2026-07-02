@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart'; // <-- Import untuk reverse geocoding
+import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ShevaShieldPage extends StatefulWidget {
@@ -21,7 +21,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
 
   final ImagePicker _picker = ImagePicker();
 
-  // Pilih dari kamera
   Future<void> _pickFromCamera() async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -40,7 +39,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     }
   }
 
-  // Pilih dari galeri
   Future<void> _pickFromGallery() async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -59,7 +57,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     }
   }
 
-  // Deteksi lokasi otomatis
   Future<void> _detectLocation() async {
     setState(() {
       _isLoadingLocation = true;
@@ -67,7 +64,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     });
 
     try {
-      // Cek izin lokasi
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -88,12 +84,10 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
         return;
       }
 
-      // Dapatkan posisi
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      // Reverse geocoding menggunakan geocoding package
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -123,7 +117,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     }
   }
 
-  // Kirim ke WhatsApp layanan darurat
   Future<void> _sendToWhatsApp(String phoneNumber, String message) async {
     String cleanPhone = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
     if (cleanPhone.startsWith('0')) {
@@ -147,7 +140,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     }
   }
 
-  // Kirim laporan darurat
   Future<void> _sendEmergencyReport() async {
     if (_imageFile == null && _descriptionController.text.isEmpty) {
       _showSnackBar('Silakan tambahkan foto atau deskripsi kejadian.');
@@ -251,6 +243,7 @@ For She, For He, For All.
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF290D36),
+      // TIDAK ADA FloatingActionButton di halaman Shield
       appBar: AppBar(
         title:
             const Text('SHEVA Shield', style: TextStyle(color: Colors.white)),

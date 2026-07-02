@@ -11,18 +11,14 @@ class ShevaSettingPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF17071F),
+      floatingActionButton: _buildSOSButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
         backgroundColor: const Color(0xFF493370),
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('Pengaturan',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sos, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/shield'),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -355,6 +351,18 @@ class ShevaSettingPage extends StatelessWidget {
     );
   }
 
+  Widget _buildSOSButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => Navigator.pushNamed(context, '/shield'),
+      backgroundColor: const Color(0xFFFF0C0C),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.sos, size: 32),
+      shape: const CircleBorder(
+        side: BorderSide(color: Colors.white, width: 1),
+      ),
+    );
+  }
+
   Widget _buildThemeOption(BuildContext context, String label, String value) {
     final settingsProvider =
         Provider.of<SettingsProvider>(context, listen: false);
@@ -363,12 +371,10 @@ class ShevaSettingPage extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         settingsProvider.setThemeMode(value);
-        // Tema langsung berubah tanpa restart karena Consumer di main.dart
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Tema berubah menjadi $label'),
+            content: Text('Tema akan berubah setelah aplikasi di-restart'),
             backgroundColor: const Color(0xFF493370),
-            duration: const Duration(seconds: 1),
           ),
         );
       },
@@ -402,12 +408,11 @@ class ShevaSettingPage extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         settingsProvider.setFontSize(value);
-        // Ukuran teks langsung berubah tanpa restart karena MediaQuery override
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ukuran teks: $label'),
+            content:
+                Text('Ukuran teks akan berubah setelah aplikasi di-restart'),
             backgroundColor: const Color(0xFF493370),
-            duration: const Duration(seconds: 1),
           ),
         );
       },

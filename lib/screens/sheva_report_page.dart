@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:share_plus/share_plus.dart';
 
 class ShevaReportPage extends StatefulWidget {
   const ShevaReportPage({super.key});
@@ -34,7 +33,6 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
     'Lainnya',
   ];
 
-  // Daftar hotline untuk tujuan laporan
   final List<Hotline> _hotlines = [
     Hotline(
         name: 'SAPA 129',
@@ -79,7 +77,6 @@ Solidarity Hub for Equality, Voice, and Action
 For She, For He, For All.
 ''';
 
-    // Bersihkan nomor
     String cleanPhone = hotline.phone.replaceAll(RegExp(r'[^0-9+]'), '');
     if (cleanPhone.startsWith('0')) {
       cleanPhone = '62${cleanPhone.substring(1)}';
@@ -92,8 +89,7 @@ For She, For He, For All.
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      // Share fallback
-      await Share.share(message);
+      _showSnackBar('Tidak dapat membuka WhatsApp.');
     }
   }
 
@@ -107,10 +103,24 @@ For She, For He, For All.
     );
   }
 
+  Widget _buildSOSButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => Navigator.pushNamed(context, '/shield'),
+      backgroundColor: const Color(0xFFFF0C0C),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.sos, size: 32),
+      shape: const CircleBorder(
+        side: BorderSide(color: Colors.white, width: 1),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF290D36),
+      floatingActionButton: _buildSOSButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
         backgroundColor: const Color(0xFF48336F),
         foregroundColor: Colors.white,
@@ -119,12 +129,6 @@ For She, For He, For All.
           'SHEVA Report',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sos, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/shield'),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -354,7 +358,6 @@ For She, For He, For All.
                         'Silakan pilih jenis laporan terlebih dahulu.');
                     return;
                   }
-                  // Tampilkan pilihan hotline
                   showModalBottomSheet(
                     context: context,
                     backgroundColor: const Color(0xFF290D36),

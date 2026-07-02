@@ -1,20 +1,76 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final PageController _pageController = PageController();
+  Timer? _timer;
+  int _currentPage = 0;
+
+  final List<StatCardData> _statCards = [
+    StatCardData(
+      title: '376.529',
+      subtitle: 'Kasus KBG (2025)',
+      source: 'Komnas Perempuan CATAHU 2025',
+      color: Color(0xB2FF0909),
+    ),
+    StatCardData(
+      title: '8.543',
+      subtitle: 'Pengaduan KBGO (2025)',
+      source: 'Komnas Perempuan CATAHU 2025',
+      color: Color(0xB2005DFF),
+    ),
+    StatCardData(
+      title: '15-19 Tahun',
+      subtitle: 'Usia Korban KBGO Terbanyak',
+      source: 'SPHPN 2024',
+      color: Color(0xB2FF6B09),
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-scroll setiap 4 detik
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_pageController.hasClients) {
+        final nextPage = (_currentPage + 1) % _statCards.length;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final settingsProvider = Provider.of<SettingsProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFF290D36),
+      floatingActionButton: _buildSOSButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
               // Header
@@ -98,38 +154,126 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Carousel Statistik
+              // ===== CAROUSEL STATISTIK (AUTO-SCROLL) =====
               SizedBox(
                 height: 100,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Stack(
                   children: [
-                    _buildStatCard(
-                      '376.529',
-                      'Kasus KBG (2025)',
-                      'Komnas Perempuan CATAHU 2025',
-                      const Color(0xB2FF0909),
+                    PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemCount: _statCards.length,
+                      itemBuilder: (context, index) {
+                        final card = _statCards[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildStatCard(
+                            card.title,
+                            card.subtitle,
+                            card.source,
+                            card.color,
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(width: 12),
-                    _buildStatCard(
-                      '8.543',
-                      'Pengaduan KBGO (2025)',
-                      'Komnas Perempuan CATAHU 2025',
-                      const Color(0xB2005DFF),
-                    ),
-                    const SizedBox(width: 12),
-                    _buildStatCard(
-                      '15-19 Tahun',
-                      'Usia Korban KBGO Terbanyak',
-                      'SPHPN 2024',
-                      const Color(0xB2FF6B09),
+                    // Indikator dot
+                    Positioned(
+                      bottom: 4,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _statCards.length,
+                          (index) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentPage == index ? 24 : 8,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: _currentPage == index
+                                  ? const Color(0xFF9B89EC)
+                                  : Colors.white.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              // Grid Menu
+              const SizedBox(height: 16),
+              // ===== SHEVA SHIELD - FULL WIDTH CARD =====
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/shield'),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 16),
+                    decoration: ShapeDecoration(
+                      color: const Color(0xFFD90000).withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(width: 1, color: Colors.white),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            color: Colors.white24,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.shield,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'SHEVA Shield',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const Text(
+                                'Darurat & Keselamatan',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Grid Menu (4 item: Report, Learn, Map, Circle)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: GridView.count(
@@ -140,13 +284,6 @@ class HomeScreen extends StatelessWidget {
                   mainAxisSpacing: 12,
                   childAspectRatio: 1.2,
                   children: [
-                    _buildMenuCard(
-                      'SHEVA Shield',
-                      'Darurat & Keselamatan',
-                      const Color(0xFFD90000),
-                      '/shield',
-                      context,
-                    ),
                     _buildMenuCard(
                       'SHEVA Report',
                       'Laporan anonim KBG/O',
@@ -175,17 +312,10 @@ class HomeScreen extends StatelessWidget {
                       '/circle',
                       context,
                     ),
-                    _buildMenuCard(
-                      'SOS',
-                      'Darurat & Keselamatan',
-                      const Color(0x7FFF0C0C),
-                      '/shield',
-                      context,
-                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               // VISI SHEVA
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -235,36 +365,16 @@ class HomeScreen extends StatelessWidget {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                      style: TextStyle(
-                        color: Color(0xFF919191),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/shield'),
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: const ShapeDecoration(
-                          color: Color(0x7FFF0C0C),
-                          shape: OvalBorder(
-                            side: BorderSide(width: 1, color: Colors.white),
-                          ),
-                        ),
-                        child: const Icon(Icons.sos,
-                            color: Colors.white, size: 24),
-                      ),
-                    ),
-                  ],
+                child: const Text(
+                  'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
+                  style: TextStyle(
+                    color: Color(0xFF919191),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 80),
             ],
           ),
         ),
@@ -275,7 +385,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildStatCard(
       String title, String subtitle, String source, Color color) {
     return Container(
-      width: 280,
+      width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: ShapeDecoration(
         color: const Color(0x7F744AC1),
@@ -356,4 +466,31 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildSOSButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => Navigator.pushNamed(context, '/shield'),
+      backgroundColor: const Color(0xFFFF0C0C),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.sos, size: 32),
+      shape: const CircleBorder(
+        side: BorderSide(color: Colors.white, width: 1),
+      ),
+    );
+  }
+}
+
+// Data class untuk stat card
+class StatCardData {
+  final String title;
+  final String subtitle;
+  final String source;
+  final Color color;
+
+  StatCardData({
+    required this.title,
+    required this.subtitle,
+    required this.source,
+    required this.color,
+  });
 }

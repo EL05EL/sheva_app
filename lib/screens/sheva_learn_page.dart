@@ -233,6 +233,18 @@ For She, For He, For All.
     await Share.share(shareText);
   }
 
+  Widget _buildSOSButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => Navigator.pushNamed(context, '/shield'),
+      backgroundColor: const Color(0xFFFF0C0C),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.sos, size: 32),
+      shape: const CircleBorder(
+        side: BorderSide(color: Colors.white, width: 1),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final savedModules =
@@ -241,6 +253,8 @@ For She, For He, For All.
 
     return Scaffold(
       backgroundColor: const Color(0xFF17071F),
+      floatingActionButton: _buildSOSButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
         backgroundColor: const Color(0xFF493370),
         foregroundColor: Colors.white,
@@ -249,12 +263,6 @@ For She, For He, For All.
           'SHEVA Learn',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sos, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/shield'),
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -316,9 +324,9 @@ For She, For He, For All.
                   ),
           ),
           // Footer
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: const Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
               style: TextStyle(
                 color: Color(0xFF919191),
