@@ -53,11 +53,8 @@ Aplikasi ini dirancang untuk 6 kelompok rentan:
 | **1. SHEVA Shield** | Fitur darurat satu sentuhan (SOS) + panduan keselamatan. Terintegrasi dengan hotline SAPA 129 dan LBH. |
 | **2. SHEVA Report** | Pelaporan anonim kasus KBG, KBGO, dan diskriminasi — aman & terenkripsi. |
 | **3. SHEVA Learn** | Modul edukasi interaktif (micro-learning, video, kuis, infografis) tentang kesetaraan gender. |
-| **4. SHEVA Connect** | Forum diskusi terkurasi dan ruang aman untuk berbagi cerita serta dukungan. |
-| **5. SHEVA Map** | Peta interaktif layanan bantuan (hotline, konseling, bantuan hukum, shelter). |
-| **6. SHEVA Act** | Platform kampanye dan petisi online untuk advokasi kebijakan. |
-| **7. SHEVA Circle** | Program mengajak laki-laki sebagai sekutu (HeForShe Circle). |
-| **8. SHEVA Data** | Dashboard data terkini tentang kesetaraan gender di Indonesia (BPS, Komnas Perempuan, WEF). |
+| **4. SHEVA Map** | Peta interaktif layanan bantuan (hotline, konseling, bantuan hukum, shelter). |
+| **5. SHEVA Circle** | Program mengajak laki-laki sebagai sekutu (HeForShe Circle). |
 
 ### Keunikan Aplikasi
 - **Inklusif & Universal**: Terbuka untuk semua gender.
