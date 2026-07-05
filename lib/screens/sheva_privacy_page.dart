@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
 
 class ShevaPrivacyPage extends StatelessWidget {
@@ -7,17 +8,18 @@ class ShevaPrivacyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         title: const Text(
           'Kebijakan Privasi',
-          style: AppTheme.h2Medium,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: SingleChildScrollView(
@@ -25,42 +27,42 @@ class ShevaPrivacyPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Intro
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppTheme.spacingMd),
               decoration: ShapeDecoration(
-                color: AppTheme.surfaceCard,
+                color: colors.card,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 2, color: Color(0xFF3F2A60)),
+                  side: BorderSide(width: 2, color: colors.accentMid),
                   borderRadius: BorderRadius.circular(AppTheme.spacingLg),
                 ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.privacy_tip,
-                      color: AppTheme.secondary, size: AppTheme.iconLarge),
+                  Icon(Icons.privacy_tip,
+                      color: colors.accent, size: AppTheme.iconLarge),
                   const SizedBox(width: AppTheme.spacingSm),
                   Expanded(
                     child: RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         children: [
                           TextSpan(
                             text: 'SHEVA dibangun dengan prinsip ',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(color: colors.text1, fontSize: 14),
                           ),
                           TextSpan(
                             text: 'privacy by design',
                             style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
+                              color: colors.text1,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           TextSpan(
                             text:
                                 '. Semua data tersimpan di perangkat Anda - kami tidak memiliki akses ke informasi pribadi Anda.',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(color: colors.text1, fontSize: 14),
                           ),
                         ],
                       ),
@@ -70,7 +72,6 @@ class ShevaPrivacyPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Menu
             _buildMenuItem(
               context,
               icon: Icons.data_usage,
@@ -178,17 +179,21 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
 ''',
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            const Center(
+            Center(
               child: Text(
                 '"For She, For He, For All."',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                style: TextStyle(color: colors.text2, fontSize: 12),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
-            const Center(
+            Center(
               child: Text(
                 'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                style: AppTheme.tiny,
+                style: TextStyle(
+                  color: colors.text3,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ],
@@ -204,13 +209,14 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
     required String subtitle,
     required String content,
   }) {
+    final colors = context.shevaColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.spacingSm),
       child: InkWell(
         onTap: () => _showDetailDialog(context, title, content),
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        splashColor: Colors.white.withOpacity(0.1),
-        highlightColor: Colors.white.withOpacity(0.05),
+        splashColor: colors.text1.withOpacity(0.1),
+        highlightColor: colors.text1.withOpacity(0.05),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(
@@ -218,33 +224,32 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
             vertical: AppTheme.spacingSm,
           ),
           decoration: ShapeDecoration(
-            color: AppTheme.surfaceCard,
+            color: colors.card,
             shape: RoundedRectangleBorder(
-              side: const BorderSide(color: AppTheme.borderLight),
+              side: BorderSide(color: colors.border),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             ),
           ),
           child: Row(
             children: [
-              Icon(icon, color: AppTheme.secondary, size: AppTheme.iconLarge),
+              Icon(icon, color: colors.accent, size: AppTheme.iconLarge),
               const SizedBox(width: AppTheme.spacingMd),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title,
-                        style: const TextStyle(
-                            color: Colors.white,
+                        style: TextStyle(
+                            color: colors.text1,
                             fontSize: 16,
                             fontWeight: FontWeight.w700)),
                     Text(subtitle,
-                        style: const TextStyle(
-                            color: AppTheme.textSecondary, fontSize: 12)),
+                        style: TextStyle(color: colors.text2, fontSize: 12)),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right,
-                  color: Colors.white, size: AppTheme.iconMain),
+              Icon(Icons.chevron_right,
+                  color: colors.text1, size: AppTheme.iconMain),
             ],
           ),
         ),
@@ -253,12 +258,12 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
   }
 
   void _showDetailDialog(BuildContext context, String title, String content) {
+    final colors = context.shevaColors;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(title,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+            style: TextStyle(color: colors.text1, fontWeight: FontWeight.bold)),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,14 +278,12 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('• ',
-                          style: TextStyle(
-                              color: AppTheme.secondary, fontSize: 14)),
+                      Text('• ',
+                          style: TextStyle(color: colors.accent, fontSize: 14)),
                       Expanded(
                         child: Text(
                           line.trim().substring(1).trim(),
-                          style: const TextStyle(
-                              color: AppTheme.textSecondary, fontSize: 14),
+                          style: TextStyle(color: colors.text2, fontSize: 14),
                         ),
                       ),
                     ],
@@ -291,8 +294,8 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
                 padding: const EdgeInsets.only(bottom: AppTheme.spacingXxs),
                 child: Text(
                   line.trim(),
-                  style: const TextStyle(
-                      color: Colors.white,
+                  style: TextStyle(
+                      color: colors.text1,
                       fontSize: 14,
                       fontWeight: FontWeight.w500),
                 ),
@@ -300,16 +303,15 @@ Kebijakan ini terakhir diperbarui pada 17 Juni 2026 dan berlaku untuk SHEVA vers
             }).toList(),
           ),
         ),
-        backgroundColor: AppTheme.background,
+        backgroundColor: colors.bgDeep,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          side: const BorderSide(color: AppTheme.borderDefault),
+          side: BorderSide(color: colors.border),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup',
-                style: TextStyle(color: AppTheme.textMuted)),
+            child: Text('Tutup', style: TextStyle(color: colors.text4)),
           ),
         ],
       ),

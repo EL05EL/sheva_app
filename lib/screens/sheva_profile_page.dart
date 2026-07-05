@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../app_theme.dart';
-import '../providers/settings_provider.dart';
+import 'package:sheva_app/providers/user_provider.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
 
 class ShevaProfilePage extends StatefulWidget {
@@ -18,36 +19,36 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
-        title: const Text('Profil', style: AppTheme.h2Medium),
+        title: const Text('Profil',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           children: [
-            // Foto Profil
             Center(
               child: Stack(
                 children: [
                   CircleAvatar(
                     radius: 61,
-                    backgroundColor: AppTheme.background,
+                    backgroundColor: colors.card,
                     backgroundImage: userProvider.profileImagePath != null
                         ? FileImage(File(userProvider.profileImagePath!))
                             as ImageProvider
                         : null,
                     child: userProvider.profileImagePath == null
-                        ? const Icon(Icons.person,
-                            size: 60, color: AppTheme.textHint)
+                        ? Icon(Icons.person, size: 60, color: colors.text4)
                         : null,
                   ),
                   Positioned(
@@ -59,23 +60,23 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
                             height: 32,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: AppTheme.secondary,
+                              color: Colors.purple,
                             ),
                           )
                         : InkWell(
                             onTap: () =>
                                 _showImagePickerOptions(context, userProvider),
                             borderRadius: BorderRadius.circular(16),
-                            splashColor: Colors.white.withOpacity(0.2),
-                            highlightColor: Colors.white.withOpacity(0.1),
+                            splashColor: colors.text1.withOpacity(0.2),
+                            highlightColor: colors.text1.withOpacity(0.1),
                             child: Container(
                               padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                color: AppTheme.secondary,
+                              decoration: BoxDecoration(
+                                color: colors.accent,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.edit,
-                                  color: Colors.white,
+                              child: Icon(Icons.edit,
+                                  color: colors.text1,
                                   size: AppTheme.iconSmall),
                             ),
                           ),
@@ -84,21 +85,24 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            // Nama
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   userProvider.userName,
-                  style: AppTheme.bodyBold,
+                  style: TextStyle(
+                    color: colors.text1,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(width: AppTheme.spacingXs),
                 if (!_isLoading)
                   InkWell(
                     onTap: () => _editName(context, userProvider),
                     borderRadius: BorderRadius.circular(8),
-                    child: const Icon(Icons.edit,
-                        color: AppTheme.secondary, size: AppTheme.iconSmall),
+                    child: Icon(Icons.edit,
+                        color: colors.accent, size: AppTheme.iconSmall),
                   ),
                 if (_isLoading)
                   const SizedBox(
@@ -106,7 +110,7 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
                     height: AppTheme.iconSmall,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppTheme.secondary,
+                      color: Colors.purple,
                     ),
                   ),
               ],
@@ -114,15 +118,23 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
             const SizedBox(height: AppTheme.spacingXxs),
             Text(
               'Bergabung sejak ${userProvider.joinDate}',
-              style: AppTheme.caption,
+              style: TextStyle(
+                color: colors.text2,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Gender
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Gender',
-                style: AppTheme.bodyBold,
+                // 🔥 PERBAIKAN: Gunakan colors.text1 (berubah otomatis di light/dark)
+                style: TextStyle(
+                  color: colors.text1,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
@@ -134,16 +146,19 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               ],
             ),
             const SizedBox(height: AppTheme.spacingXl),
-            // Pengaturan & Lainnya
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Pengaturan & Lainnya',
-                style: AppTheme.bodyBold,
+                // 🔥 PERBAIKAN: Gunakan colors.text1
+                style: TextStyle(
+                  color: colors.text1,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
-            // Pengaturan Aplikasi
             _buildMenuItem(
               icon: Icons.settings,
               title: 'Pengaturan Aplikasi',
@@ -151,7 +166,6 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               onTap: () => Navigator.pushNamed(context, '/settings'),
             ),
             const SizedBox(height: AppTheme.spacingSm),
-            // Kebijakan Privasi
             _buildMenuItem(
               icon: Icons.privacy_tip,
               title: 'Kebijakan Privasi',
@@ -159,27 +173,25 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               onTap: () => Navigator.pushNamed(context, '/privacy'),
             ),
             const SizedBox(height: AppTheme.spacingXl),
-            // Deskripsi SHEVA
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingMd),
-              decoration: ShapeDecoration(
-                color: AppTheme.surfaceCardAlt,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: AppTheme.surfaceCard2),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'SHEVA - SOLIDARITY HUB FOR EQUALITY, VOICE AND ACTION',
                     style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700),
+                      color: colors.text2,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                  SizedBox(height: AppTheme.spacingXxs),
+                  const SizedBox(height: AppTheme.spacingXxs),
                   Text.rich(
                     TextSpan(
                       children: [
@@ -187,17 +199,19 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
                           text:
                               'Perpaduan "she" (perempuan) dan "Eva" (kehidupan) - ',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700),
+                            color: colors.text1,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         TextSpan(
                           text:
                               'melambangkan bahwa kesetaraan adalah nafas kehidupan bagi semua manusia',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700),
+                            color: colors.text1,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ],
                     ),
@@ -206,10 +220,14 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            const Center(
+            Center(
               child: Text(
                 '"For She, For He, For All."',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                style: TextStyle(
+                  color: colors.text2,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ],
@@ -220,6 +238,7 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
 
   Widget _buildGenderOption(
       BuildContext context, String gender, UserProvider userProvider) {
+    final colors = context.shevaColors;
     final isSelected = userProvider.userGender == gender;
     return InkWell(
       onTap: () async {
@@ -229,21 +248,19 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
         if (mounted) setState(() => _isLoading = false);
       },
       borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: AppTheme.spacingSm,
           horizontal: AppTheme.spacingXl,
         ),
         decoration: ShapeDecoration(
-          color: isSelected ? AppTheme.surfaceCard2 : AppTheme.background,
+          color: isSelected ? colors.accentMid : colors.card,
           shape: RoundedRectangleBorder(
             side: BorderSide(
               width: 2,
-              color: isSelected
-                  ? AppTheme.secondary
-                  : AppTheme.genderBorderUnselected,
+              color: isSelected ? colors.accent : colors.border,
             ),
             borderRadius: BorderRadius.circular(AppTheme.radiusSm),
           ),
@@ -251,7 +268,7 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
         child: Text(
           gender,
           style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.textHint,
+            color: isSelected ? colors.text1 : colors.text4,
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
@@ -266,43 +283,50 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colors = context.shevaColors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: AppTheme.spacingMd,
           horizontal: AppTheme.spacingMd,
         ),
-        decoration: ShapeDecoration(
-          color: AppTheme.surfaceCard,
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(color: AppTheme.borderLight),
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          ),
+        decoration: BoxDecoration(
+          color: colors.card,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: colors.border),
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white, size: AppTheme.iconMain),
+            Icon(icon, color: colors.text1, size: AppTheme.iconMain),
             const SizedBox(width: AppTheme.spacingMd),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600)),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          color: AppTheme.textSecondary, fontSize: 10)),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: colors.text1,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: colors.text2,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white),
+            Icon(Icons.chevron_right, color: colors.text1),
           ],
         ),
       ),
@@ -311,11 +335,12 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
 
   void _showImagePickerOptions(
       BuildContext context, UserProvider userProvider) {
+    final colors = context.shevaColors;
     final picker = ImagePicker();
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(AppTheme.spacingLg)),
@@ -325,14 +350,19 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Foto Profil',
-              style: AppTheme.h2,
+              style: TextStyle(
+                color: colors.text1,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
             ListTile(
-              leading: const Icon(Icons.photo_library, color: Colors.white),
-              title: const Text('Pilih dari Galeri', style: AppTheme.body),
+              leading: Icon(Icons.photo_library, color: colors.text1),
+              title: Text('Pilih dari Galeri',
+                  style: TextStyle(color: colors.text1)),
               onTap: () async {
                 Navigator.pop(context);
                 if (_isLoading) return;
@@ -363,8 +393,8 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
                 },
               ),
             ListTile(
-              leading: const Icon(Icons.close, color: Colors.grey),
-              title: const Text('Batal', style: TextStyle(color: Colors.grey)),
+              leading: Icon(Icons.close, color: colors.text4),
+              title: Text('Batal', style: TextStyle(color: colors.text4)),
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -374,35 +404,35 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
   }
 
   void _editName(BuildContext context, UserProvider userProvider) {
+    final colors = context.shevaColors;
     final controller = TextEditingController(text: userProvider.userName);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ubah Nama Panggilan',
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: AppTheme.background,
+        title:
+            Text('Ubah Nama Panggilan', style: TextStyle(color: colors.text1)),
+        backgroundColor: colors.bgDeep,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          side: const BorderSide(color: AppTheme.borderDefault),
+          side: BorderSide(color: colors.border),
         ),
         content: TextField(
           controller: controller,
-          style: AppTheme.body,
-          decoration: const InputDecoration(
+          style: TextStyle(color: colors.text1),
+          decoration: InputDecoration(
             hintText: 'Masukkan nama baru',
-            hintStyle: TextStyle(color: AppTheme.textHint),
+            hintStyle: TextStyle(color: colors.text4),
             border: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppTheme.borderDefault)),
+                borderSide: BorderSide(color: colors.border)),
             enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppTheme.borderDefault)),
+                borderSide: BorderSide(color: colors.border)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal',
-                style: TextStyle(color: AppTheme.textMuted)),
+            child: Text('Batal', style: TextStyle(color: colors.text4)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -415,8 +445,8 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.surfaceCard2,
-              foregroundColor: Colors.white,
+              backgroundColor: colors.accentMid,
+              foregroundColor: colors.text1,
             ),
             child: const Text('Simpan'),
           ),

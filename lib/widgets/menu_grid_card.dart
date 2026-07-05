@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
-/// Card menu grid (Report, Learn, Map, Circle) di Home Screen.
 class MenuGridCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final Color color;
   final String route;
+  final IconData icon; // 🔥 TAMBAHKAN parameter icon
 
   const MenuGridCard({
     super.key,
@@ -14,23 +15,26 @@ class MenuGridCard extends StatelessWidget {
     required this.subtitle,
     required this.color,
     required this.route,
+    required this.icon, // 🔥 WAJIB diisi
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return InkWell(
       onTap: () => Navigator.pushNamed(context, route),
       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.all(AppTheme.spacingSm),
         decoration: ShapeDecoration(
-          color: color.withOpacity(0.5),
+          // 🔥 PERBAIKAN: Kurangi transparansi (dari 0.5 jadi 0.85 agar lebih solid)
+          color: color.withOpacity(0.85),
           shape: RoundedRectangleBorder(
             side: BorderSide(
               width: 1,
-              color: Colors.white.withOpacity(0.3),
+              color: colors.text1.withOpacity(0.2),
             ),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
@@ -38,10 +42,17 @@ class MenuGridCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 🔥 TAMBAHKAN IKON di atas teks
+            Icon(
+              icon,
+              color: colors.text1,
+              size: AppTheme.iconLarge,
+            ),
+            const SizedBox(height: AppTheme.spacingXs),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.text1,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
@@ -50,8 +61,8 @@ class MenuGridCard extends StatelessWidget {
             const SizedBox(height: AppTheme.spacingXxs),
             Text(
               subtitle,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.text1.withOpacity(0.9),
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),

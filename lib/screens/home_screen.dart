@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../app_theme.dart';
-import '../providers/settings_provider.dart';
+import 'package:sheva_app/providers/user_provider.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/sos_button.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/menu_grid_card.dart';
@@ -66,9 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final colors = context.shevaColors;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
@@ -83,9 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   horizontal: AppTheme.spacingMd,
                   vertical: AppTheme.spacingSm,
                 ),
-                decoration: const BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: colors.header,
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(AppTheme.spacingXl),
                     bottomRight: Radius.circular(AppTheme.spacingXl),
                   ),
@@ -97,13 +101,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(20),
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: AppTheme.background,
+                        backgroundColor: colors.bgDeep,
                         backgroundImage: userProvider.profileImagePath != null
                             ? FileImage(File(userProvider.profileImagePath!))
                             : null,
                         child: userProvider.profileImagePath == null
-                            ? const Icon(Icons.person,
-                                color: Colors.white, size: AppTheme.iconMain)
+                            ? Icon(Icons.person,
+                                color: colors.text1, size: AppTheme.iconMain)
                             : null,
                       ),
                     ),
@@ -115,26 +119,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Halo!',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: colors.text1,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                             Text(
                               userProvider.userName,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: colors.text1,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const Text(
+                            Text(
                               'For She, For He, For All.',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: colors.text1,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -143,10 +147,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                    // Toggle Light/Dark
+                    IconButton(
+                      icon: Icon(
+                        themeProvider.isDarkMode
+                            ? Icons.light_mode
+                            : Icons.dark_mode,
+                        color: colors.text1,
+                        size: AppTheme.iconMain,
+                      ),
+                      onPressed: () {
+                        themeProvider.toggleTheme();
+                      },
+                      padding: const EdgeInsets.all(AppTheme.spacingXs),
+                      constraints: const BoxConstraints(
+                        minWidth: AppTheme.touchTarget,
+                        minHeight: AppTheme.touchTarget,
+                      ),
+                    ),
                     // Popup Menu
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert,
-                          color: Colors.white, size: AppTheme.iconMain),
+                      icon: Icon(Icons.more_vert,
+                          color: colors.text1, size: AppTheme.iconMain),
                       onSelected: (value) {
                         if (value == 'settings') {
                           Navigator.pushNamed(context, '/settings');
@@ -215,8 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 6,
                             decoration: BoxDecoration(
                               color: _currentPage == index
-                                  ? AppTheme.secondary
-                                  : Colors.white.withOpacity(0.3),
+                                  ? colors.accent
+                                  : colors.text1.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
@@ -227,15 +249,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingMd),
-              // SHEVA Shield
+
+              // ============================================================
+              // 🔥 SHEVA SHIELD - Gaya konsisten dengan grid card (merah)
+              // ============================================================
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
                 child: InkWell(
                   onTap: () => Navigator.pushNamed(context, '/shield'),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
+                  splashColor: colors.text1.withOpacity(0.1),
+                  highlightColor: colors.text1.withOpacity(0.05),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -243,14 +268,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       horizontal: AppTheme.spacingMd,
                     ),
                     decoration: ShapeDecoration(
-                      color: AppTheme.dangerDark.withOpacity(0.5),
+                      // 🔥 Gunakan warna merah dengan opasitas 0.85 (sama seperti grid card)
+                      color: colors.sosRed.withOpacity(0.85),
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Colors.white),
+                        side: BorderSide(
+                          width: 1,
+                          color: colors.text1
+                              .withOpacity(0.2), // border putih tipis
+                        ),
                         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                     ),
                     child: Row(
                       children: [
+                        // Lingkaran ikon dengan background putih transparan
                         Container(
                           width: 48,
                           height: 48,
@@ -258,9 +289,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white24,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.shield,
-                            color: Colors.white,
+                            color: colors.text1,
                             size: AppTheme.iconLarge,
                           ),
                         ),
@@ -269,18 +300,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'SHEVA Shield',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: colors.text1,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const Text(
+                              Text(
                                 'Darurat & Keselamatan',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: colors.text1,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -288,9 +319,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right,
-                          color: Colors.white,
+                          color: colors.text1,
                           size: AppTheme.iconLarge,
                         ),
                       ],
@@ -299,7 +330,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingMd),
-              // Grid Menu
+
+              // Grid Menu dengan Ikon sesuai PDF
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
@@ -316,24 +348,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: 'Laporan anonim KBG/O',
                       color: Color(0xFF5139BE),
                       route: '/report',
+                      icon: Icons.description,
                     ),
                     MenuGridCard(
                       title: 'SHEVA Learn',
                       subtitle: 'Edukasi gender equality',
                       color: Color(0xFF00829F),
                       route: '/learn',
+                      icon: Icons.book,
                     ),
                     MenuGridCard(
                       title: 'SHEVA Map',
                       subtitle: 'Layanan bantuan terdekat',
                       color: Color(0xFFCB338F),
                       route: '/map',
+                      icon: Icons.location_on,
                     ),
                     MenuGridCard(
                       title: 'SHEVA Circle',
                       subtitle: 'HeForShe - sekutu setara',
                       color: Color(0xFF744AC1),
                       route: '/circle',
+                      icon: Icons.favorite,
                     ),
                   ],
                 ),
@@ -344,35 +380,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 margin:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
                 padding: const EdgeInsets.all(AppTheme.spacingMd),
-                decoration: AppTheme.cardDecoration(
-                  color: AppTheme.surface,
-                  borderColor: AppTheme.borderDefault,
+                decoration: BoxDecoration(
+                  color: colors.card,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  border: Border.all(color: colors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'VISI SHEVA',
                       style: TextStyle(
-                        color: AppTheme.secondary,
+                        color: colors.accent,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: AppTheme.spacingXs),
-                    const Text(
+                    Text(
                       '"Mewujudkan masyarakat yang setara, adil, dan bebas dari kekerasan berbasis gender - dimana setiap individu dapat hidup dengan martabat dan aman."',
                       style: TextStyle(
-                        color: AppTheme.textMuted,
+                        color: colors.text2,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: AppTheme.spacingXs),
-                    const Text(
+                    Text(
                       '- Equality is not women\'s issue. It\'s a human issue.',
                       style: TextStyle(
-                        color: AppTheme.textMuted,
+                        color: colors.text2,
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w500,
@@ -388,9 +425,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   horizontal: AppTheme.spacingMd,
                   vertical: AppTheme.spacingSm,
                 ),
-                child: const Text(
+                child: Text(
                   'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                  style: AppTheme.tiny,
+                  style: TextStyle(
+                    color: colors.text3,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
               const SizedBox(height: 80),
@@ -402,13 +443,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Data class untuk stat card
 class StatCardData {
   final String title;
   final String subtitle;
   final String source;
   final Color color;
-
   StatCardData({
     required this.title,
     required this.subtitle,

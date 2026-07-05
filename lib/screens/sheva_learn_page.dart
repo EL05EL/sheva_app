@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
 
 class ShevaLearnPage extends StatefulWidget {
@@ -239,26 +240,26 @@ For She, For He, For All.
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     final savedModules =
         _modules.where((m) => _savedModuleIds.contains(m.id)).toList();
     final displayModules = _selectedTab == 0 ? _modules : savedModules;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         title: const Text(
           'SHEVA Learn',
-          style: AppTheme.h2Medium,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: Column(
         children: [
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppTheme.spacingMd,
@@ -266,20 +267,21 @@ For She, For He, For All.
             ),
             child: Container(
               height: 40,
-              decoration: AppTheme.cardDecoration(
-                color: AppTheme.surface,
-                borderRadius: AppTheme.radiusXl,
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                border: Border.all(color: colors.border),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  SizedBox(width: AppTheme.spacingSm),
+                  const SizedBox(width: AppTheme.spacingSm),
                   Icon(Icons.search,
-                      color: AppTheme.textMuted, size: AppTheme.spacingLg),
-                  SizedBox(width: AppTheme.spacingXs),
+                      color: colors.text4, size: AppTheme.spacingLg),
+                  const SizedBox(width: AppTheme.spacingXs),
                   Text(
                     'Cari modul...',
                     style: TextStyle(
-                      color: AppTheme.textMuted,
+                      color: colors.text4,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -288,7 +290,6 @@ For She, For He, For All.
               ),
             ),
           ),
-          // Tab
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: Row(
@@ -299,13 +300,12 @@ For She, For He, For All.
               ],
             ),
           ),
-          // List
           Expanded(
             child: displayModules.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'Belum ada modul disimpan',
-                      style: TextStyle(color: AppTheme.textMuted, fontSize: 16),
+                      style: TextStyle(color: colors.text3, fontSize: 16),
                     ),
                   )
                 : ListView.builder(
@@ -316,12 +316,15 @@ For She, For He, For All.
                     },
                   ),
           ),
-          // Footer
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
-            child: const Text(
+            child: Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: AppTheme.tiny,
+              style: TextStyle(
+                color: colors.text3,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],
@@ -330,28 +333,29 @@ For She, For He, For All.
   }
 
   Widget _buildTabButton(String label, int index) {
+    final colors = context.shevaColors;
     final isSelected = _selectedTab == index;
     return InkWell(
       onTap: () => setState(() => _selectedTab = index),
       borderRadius: BorderRadius.circular(AppTheme.spacingLg),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppTheme.spacingLg,
           vertical: AppTheme.spacingXs,
         ),
         decoration: ShapeDecoration(
-          color: isSelected ? AppTheme.accentPurpleDark : AppTheme.surfaceCard2,
+          color: isSelected ? colors.accentMid : colors.card,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: AppTheme.borderDefault),
+            side: BorderSide(color: colors.border),
             borderRadius: BorderRadius.circular(AppTheme.spacingLg),
           ),
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.text1,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -361,6 +365,7 @@ For She, For He, For All.
   }
 
   Widget _buildModuleCard(Module module) {
+    final colors = context.shevaColors;
     final isSaved = _savedModuleIds.contains(module.id);
     return InkWell(
       onTap: () {
@@ -377,12 +382,16 @@ For She, For He, For All.
         );
       },
       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
         padding: const EdgeInsets.all(AppTheme.spacingMd),
-        decoration: AppTheme.cardDecorationHeavy(),
+        decoration: BoxDecoration(
+          color: colors.cardWarm,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: colors.borderStrong),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -391,22 +400,20 @@ For She, For He, For All.
               children: [
                 Text(
                   module.title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: colors.text1,
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.access_time,
-                        color: AppTheme.textSecondary,
-                        size: AppTheme.iconSmall),
+                    Icon(Icons.access_time,
+                        color: colors.text2, size: AppTheme.iconSmall),
                     const SizedBox(width: AppTheme.spacingXxs),
                     Text(
                       module.duration,
-                      style: const TextStyle(
-                          color: AppTheme.textSecondary, fontSize: 10),
+                      style: TextStyle(color: colors.text2, fontSize: 10),
                     ),
                   ],
                 ),
@@ -415,8 +422,8 @@ For She, For He, For All.
             const SizedBox(height: AppTheme.spacingXxs),
             Text(
               module.subtitle,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                color: colors.text2,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -427,32 +434,30 @@ For She, For He, For All.
                 InkWell(
                   onTap: () => _toggleSaveModule(module.id),
                   borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
+                  splashColor: colors.text1.withOpacity(0.1),
+                  highlightColor: colors.text1.withOpacity(0.05),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingSm,
                       vertical: AppTheme.spacingXxs,
                     ),
-                    decoration: ShapeDecoration(
-                      color: AppTheme.surface,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: AppTheme.borderDefault),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      ),
+                    decoration: BoxDecoration(
+                      color: colors.card,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                      border: Border.all(color: colors.border),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: AppTheme.textMuted,
+                          color: colors.text4,
                           size: AppTheme.iconSmall,
                         ),
                         const SizedBox(width: AppTheme.spacingXxs),
                         Text(
                           isSaved ? 'Disimpan' : 'Simpan',
-                          style: const TextStyle(
-                            color: AppTheme.textMuted,
+                          style: TextStyle(
+                            color: colors.text4,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -465,30 +470,27 @@ For She, For He, For All.
                 InkWell(
                   onTap: () => _shareModule(module),
                   borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
+                  splashColor: colors.text1.withOpacity(0.1),
+                  highlightColor: colors.text1.withOpacity(0.05),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingSm,
                       vertical: AppTheme.spacingXxs,
                     ),
-                    decoration: ShapeDecoration(
-                      color: AppTheme.surface,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: AppTheme.borderDefault),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      ),
+                    decoration: BoxDecoration(
+                      color: colors.card,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                      border: Border.all(color: colors.border),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.share,
-                            color: AppTheme.textMuted,
-                            size: AppTheme.iconSmall),
-                        SizedBox(width: AppTheme.spacingXxs),
+                            color: colors.text4, size: AppTheme.iconSmall),
+                        const SizedBox(width: AppTheme.spacingXxs),
                         Text(
                           'Bagikan',
                           style: TextStyle(
-                            color: AppTheme.textMuted,
+                            color: colors.text4,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -498,7 +500,7 @@ For She, For He, For All.
                   ),
                 ),
                 const Spacer(),
-                const Icon(Icons.chevron_right, color: Colors.white),
+                Icon(Icons.chevron_right, color: colors.text1),
               ],
             ),
           ],
@@ -514,7 +516,6 @@ class Module {
   final String subtitle;
   final String duration;
   final String content;
-
   Module({
     required this.id,
     required this.title,
@@ -540,21 +541,23 @@ class ModuleDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: colors.bgDeep,
       appBar: AppBar(
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         title: Text(
           module.title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         actions: [
           IconButton(
             icon: Icon(
               isSaved ? Icons.bookmark : Icons.bookmark_border,
               size: AppTheme.iconMain,
+              color: colors.text1,
             ),
             onPressed: onToggleSave,
             padding: const EdgeInsets.all(AppTheme.spacingXs),
@@ -564,7 +567,8 @@ class ModuleDetailPage extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.share, size: AppTheme.iconMain),
+            icon:
+                Icon(Icons.share, size: AppTheme.iconMain, color: colors.text1),
             onPressed: onShare,
             padding: const EdgeInsets.all(AppTheme.spacingXs),
             constraints: const BoxConstraints(
@@ -581,8 +585,8 @@ class ModuleDetailPage extends StatelessWidget {
           children: [
             Text(
               module.subtitle,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                color: colors.text2,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -590,23 +594,26 @@ class ModuleDetailPage extends StatelessWidget {
             const SizedBox(height: AppTheme.spacingXs),
             Row(
               children: [
-                const Icon(Icons.access_time,
-                    color: AppTheme.textSecondary, size: AppTheme.iconSmall),
+                Icon(Icons.access_time,
+                    color: colors.text2, size: AppTheme.iconSmall),
                 const SizedBox(width: AppTheme.spacingXxs),
                 Text(
                   module.duration,
-                  style: const TextStyle(
-                      color: AppTheme.textSecondary, fontSize: 12),
+                  style: TextStyle(color: colors.text2, fontSize: 12),
                 ),
               ],
             ),
             const SizedBox(height: AppTheme.spacingLg),
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingMd),
-              decoration: AppTheme.cardDecoration(),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _buildContentParagraphs(module.content),
+                children: _buildContentParagraphs(context, module.content),
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
@@ -616,15 +623,15 @@ class ModuleDetailPage extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: onToggleSave,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.surfaceCard2,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colors.accentMid,
+                    foregroundColor: colors.text1,
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingXl,
                       vertical: AppTheme.spacingSm,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      side: const BorderSide(color: AppTheme.borderDefault),
+                      side: BorderSide(color: colors.border),
                     ),
                   ),
                   icon: Icon(
@@ -637,18 +644,18 @@ class ModuleDetailPage extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: onShare,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.surfaceCard2,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colors.accentMid,
+                    foregroundColor: colors.text1,
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingXl,
                       vertical: AppTheme.spacingSm,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      side: const BorderSide(color: AppTheme.borderDefault),
+                      side: BorderSide(color: colors.border),
                     ),
                   ),
-                  icon: const Icon(Icons.share, size: AppTheme.iconMain),
+                  icon: Icon(Icons.share, size: AppTheme.iconMain),
                   label: const Text('Bagikan'),
                 ),
               ],
@@ -659,7 +666,9 @@ class ModuleDetailPage extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildContentParagraphs(String content) {
+  // 🔥 PERBAIKAN: tambahkan parameter BuildContext
+  List<Widget> _buildContentParagraphs(BuildContext context, String content) {
+    final colors = context.shevaColors;
     final lines = content.split('\n');
     final List<Widget> widgets = [];
     for (var line in lines) {
@@ -674,7 +683,7 @@ class ModuleDetailPage extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                color: Colors.white,
+                color: colors.text1,
                 fontSize: level == 1 ? 20 : 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -690,13 +699,12 @@ class ModuleDetailPage extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('• ',
-                    style: TextStyle(color: AppTheme.secondary, fontSize: 14)),
+                Text('• ',
+                    style: TextStyle(color: colors.accent, fontSize: 14)),
                 Expanded(
                   child: Text(
                     text,
-                    style: const TextStyle(
-                        color: AppTheme.textSecondary, fontSize: 14),
+                    style: TextStyle(color: colors.text2, fontSize: 14),
                   ),
                 ),
               ],
@@ -709,8 +717,8 @@ class ModuleDetailPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingXxs),
             child: Text(
               line,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                color: colors.text2,
                 fontSize: 14,
                 height: 1.6,
               ),

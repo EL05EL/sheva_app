@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
-/// Card statistik untuk carousel di Home Screen.
 class StatCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -18,14 +18,13 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.spacingSm),
-      decoration: ShapeDecoration(
-        color: AppTheme.statBg,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        ),
+      decoration: BoxDecoration(
+        color: colors.accentMid.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,16 +40,16 @@ class StatCard extends StatelessWidget {
           ),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colors.text1,
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
           Text(
             source,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colors.text1,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),

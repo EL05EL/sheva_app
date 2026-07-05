@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,18 +18,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    // Beri jeda 1 detik agar splash terlihat (opsional, untuk efek smooth)
     await Future.delayed(const Duration(milliseconds: 800));
-
     final prefs = await SharedPreferences.getInstance();
     final userName = prefs.getString('userName');
-
     if (mounted) {
       if (userName != null && userName.isNotEmpty) {
-        // Sudah pernah login, langsung ke Home
         Navigator.pushReplacementNamed(context, '/home');
       } else {
-        // Belum pernah login, ke halaman Login
         Navigator.pushReplacementNamed(context, '/');
       }
     }
@@ -36,13 +32,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo / Placeholder
             Container(
               width: 120,
               height: 120,
@@ -57,13 +53,17 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            const Text(
+            Text(
               'SHEVA',
-              style: AppTheme.h1Secondary,
+              style: TextStyle(
+                color: colors.accent,
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
-            const CircularProgressIndicator(
-              color: AppTheme.secondary,
+            CircularProgressIndicator(
+              color: colors.accent,
               strokeWidth: 2,
             ),
           ],

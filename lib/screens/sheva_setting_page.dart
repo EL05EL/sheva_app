@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/sos_button.dart';
 import '../utils/device_utils.dart';
@@ -17,152 +18,155 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
-        title: const Text('Pengaturan', style: AppTheme.h2Medium),
+        title: const Text('Pengaturan',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           children: [
-            // TAMPILAN
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'TAMPILAN',
                 style: TextStyle(
-                    color: AppTheme.textPurpleLight,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700),
+                  color: Colors.purpleAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
-            // Ukuran Teks
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingMd),
-              decoration: ShapeDecoration(
-                color: AppTheme.surfaceCard,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 2, color: Color(0xFF3F2A60)),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                ),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                border: Border.all(color: colors.borderStrong),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Ukuran Text',
                     style: TextStyle(
-                        color: Color(0xFFF0EBF4),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600),
+                      color: colors.text1,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const Text(
+                  Text(
                     'Berlaku langsung tanpa perlu restart aplikasi',
-                    style: TextStyle(color: Color(0xFFD4C5E7), fontSize: 13),
+                    style: TextStyle(
+                      color: colors.text2,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: AppTheme.spacingSm),
                   _buildFontSizeOption(
                       context, 'Kecil', 'kecil', 'Lebih banyak konten'),
-                  const Divider(color: AppTheme.textSecondary),
+                  const Divider(color: Colors.grey),
                   _buildFontSizeOption(context, 'Sedang', 'sedang',
                       'Ukuran bawaan (direkomendasikan)'),
-                  const Divider(color: Colors.white),
+                  const Divider(color: Colors.grey),
                   _buildFontSizeOption(
                       context, 'Besar', 'besar', 'Lebih mudah di baca'),
                 ],
               ),
             ),
             const SizedBox(height: AppTheme.spacingXl),
-            // TENTANG SHEVA
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'TENTANG SHEVA',
                 style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingMd),
-              decoration: ShapeDecoration(
-                color: AppTheme.surfaceCard,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: AppTheme.borderLight),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
               ),
               child: Column(
                 children: [
                   _buildInfoRow('Versi Aplikasi', 'v1.0.0'),
-                  const Divider(color: Color(0xFF6B7280)),
+                  const Divider(color: Colors.grey),
                   _buildInfoRow('Tanggal Rilis', '17 Juni 2026'),
-                  const Divider(color: Color(0xFF6B7280)),
+                  const Divider(color: Colors.grey),
                   _buildInfoRow(
                       'Perangkat', DeviceUtils.getFullDeviceInfo(context)),
-                  const Divider(color: Color(0xFF6B7280)),
+                  const Divider(color: Colors.grey),
                   _buildInfoRow('Mode', 'Offline - Didukung penuh ✓'),
                 ],
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            // Deskripsi SHEVA
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingMd),
-              decoration: ShapeDecoration(
-                color: AppTheme.surfaceCard,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: AppTheme.borderLight),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
               ),
-              child: const Text.rich(
+              child: Text.rich(
                 TextSpan(
                   children: [
                     TextSpan(
                       text: 'SHEVA\n',
                       style: TextStyle(
-                          color: Color(0xFF9B8BE4),
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600),
+                        color: colors.accent,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     TextSpan(
                       text:
                           'Solidarity Hub for Equality, Voice, and Action - SDGs Goal 5: Gender Equality\n',
                       style: TextStyle(
-                          color: Color(0xFFDFD2E9),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600),
+                        color: colors.text2,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     TextSpan(
                       text: '"For She, For He, For All."',
-                      style: TextStyle(color: Color(0xFF6B7280), fontSize: 14),
+                      style: TextStyle(
+                        color: colors.text3,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXl),
-            // ZONA BAHAYA
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'ZONA BAHAYA',
                 style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXs),
@@ -176,12 +180,10 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
                   horizontal: AppTheme.spacingMd,
                   vertical: AppTheme.spacingSm,
                 ),
-                decoration: ShapeDecoration(
-                  color: AppTheme.surfaceCard,
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 2, color: Colors.red),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  ),
+                decoration: BoxDecoration(
+                  color: colors.card,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  border: Border.all(color: Colors.red, width: 2),
                 ),
                 child: Row(
                   children: [
@@ -198,12 +200,13 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
                       const Icon(Icons.delete_forever,
                           color: Colors.red, size: AppTheme.iconLarge),
                     const SizedBox(width: AppTheme.spacingMd),
-                    const Text(
+                    Text(
                       'Hapus Semua Data Saya',
                       style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600),
+                        color: colors.text2,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const Spacer(),
                     if (!_isLoading)
@@ -221,6 +224,7 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
 
   Widget _buildFontSizeOption(
       BuildContext context, String label, String value, String subtitle) {
+    final colors = context.shevaColors;
     final settingsProvider =
         Provider.of<SettingsProvider>(context, listen: false);
     final isSelected = settingsProvider.fontSize == value;
@@ -231,7 +235,7 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Ukuran teks berubah secara instan! ✨'),
-            backgroundColor: AppTheme.primary,
+            backgroundColor: Colors.purple,
             duration: Duration(seconds: 1),
           ),
         );
@@ -247,23 +251,24 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
                   Text(
                     label,
                     style: TextStyle(
-                      color:
-                          isSelected ? const Color(0xFF9B8BE4) : Colors.white,
+                      color: isSelected ? colors.accent : colors.text1,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style:
-                        const TextStyle(color: Color(0xFFD5C6E8), fontSize: 15),
+                    style: TextStyle(
+                      color: colors.text2,
+                      fontSize: 15,
+                    ),
                   ),
                 ],
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle,
-                  color: Color(0xFF9B8BE4), size: AppTheme.iconLarge),
+              Icon(Icons.check_circle,
+                  color: colors.accent, size: AppTheme.iconLarge),
           ],
         ),
       ),
@@ -271,6 +276,7 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
   }
 
   Widget _buildInfoRow(String label, String value) {
+    final colors = context.shevaColors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingXs),
       child: Row(
@@ -278,15 +284,19 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: colors.text1,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           Text(
             value,
-            style: const TextStyle(
-                color: AppTheme.textPurpleMuted,
-                fontSize: 20,
-                fontWeight: FontWeight.w500),
+            style: TextStyle(
+              color: colors.text4,
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -294,25 +304,24 @@ class _ShevaSettingPageState extends State<ShevaSettingPage> {
   }
 
   void _clearAllData(BuildContext context, SettingsProvider settingsProvider) {
+    final colors = context.shevaColors;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Semua Data?',
-            style: TextStyle(color: Colors.white)),
-        content: const Text(
+        title: Text('Hapus Semua Data?', style: TextStyle(color: colors.text1)),
+        content: Text(
           'Tindakan ini akan menghapus semua data Anda dari perangkat ini. Data yang dihapus tidak dapat dikembalikan. Apakah Anda yakin?',
-          style: TextStyle(color: AppTheme.textSecondary),
+          style: TextStyle(color: colors.text2),
         ),
-        backgroundColor: AppTheme.background,
+        backgroundColor: colors.bgDeep,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          side: const BorderSide(color: AppTheme.borderDefault),
+          side: BorderSide(color: colors.border),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal',
-                style: TextStyle(color: AppTheme.textMuted)),
+            child: Text('Batal', style: TextStyle(color: colors.text4)),
           ),
           ElevatedButton(
             onPressed: () async {

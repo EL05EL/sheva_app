@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
-/// Hotline list tile untuk digunakan di bottom sheet Shield & Report.
 class HotlineTile extends StatelessWidget {
   final String name;
   final String phone;
+  final String? whatsapp;
   final String description;
   final VoidCallback onTap;
 
@@ -12,21 +13,39 @@ class HotlineTile extends StatelessWidget {
     super.key,
     required this.name,
     required this.phone,
+    this.whatsapp,
     required this.description,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
+    final displayPhone = whatsapp ?? phone;
     return ListTile(
-      leading:
-          const Icon(Icons.phone, color: Colors.green, size: AppTheme.iconMain),
-      title: Text(name, style: AppTheme.body),
-      subtitle: Text(description, style: AppTheme.captionMuted),
-      trailing: const Icon(Icons.chevron_right,
-          color: Colors.white, size: AppTheme.iconMain),
+      leading: Icon(Icons.phone, color: Colors.green, size: AppTheme.iconMain),
+      title: Text(name, style: TextStyle(color: colors.text1, fontSize: 16)),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            description,
+            style: TextStyle(color: colors.text3, fontSize: 14),
+          ),
+          Text(
+            'WhatsApp: $displayPhone',
+            style: TextStyle(
+              color: colors.text4,
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+      trailing: Icon(Icons.chevron_right,
+          color: colors.text1, size: AppTheme.iconMain),
       onTap: onTap,
-      splashColor: Colors.white.withOpacity(0.1),
+      splashColor: colors.text1.withOpacity(0.1),
     );
   }
 }

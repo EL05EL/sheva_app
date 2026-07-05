@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
 class LoginPage1 extends StatelessWidget {
   const LoginPage1({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -17,7 +19,6 @@ class LoginPage1 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // LOGO
                 Container(
                   width: 148,
                   height: 148,
@@ -32,46 +33,60 @@ class LoginPage1 extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingLg),
-                const Text(
+                Text(
                   'Selamat Datang di',
-                  style: AppTheme.captionMuted,
+                  style: TextStyle(
+                    color: colors.text3,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                const Text(
+                Text(
                   'SHEVA',
-                  style: AppTheme.h1Secondary,
+                  style: TextStyle(
+                    color: colors.accent,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                const Text(
+                Text(
                   'Solidarity Hub For Equality, Voice, And Action',
-                  style: AppTheme.captionMuted,
+                  style: TextStyle(
+                    color: colors.text3,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
-                // Statistik
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatItem('378K+', 'Kasus KBG\nTercatat 2025'),
-                    _buildStatItem(
-                        '5', 'Fitur Perlindungan'), // 🔥 Perbaikan: 5 bukan 8
-                    _buildStatItem('100%', 'Data\nTerenkripsi'),
+                    _buildStatItem(colors, '378K+', 'Kasus KBG\nTercatat 2025'),
+                    _buildStatItem(colors, '5', 'Fitur Perlindungan'),
+                    _buildStatItem(colors, '100%', 'Data\nTerenkripsi'),
                   ],
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-                // Quote
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppTheme.spacingMd),
-                  decoration: AppTheme.cardDecoration(
-                    color: AppTheme.surface,
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    border: Border.all(color: colors.border),
                   ),
-                  child: const Text(
+                  child: Text(
                     '"SHEVA hadir untuk mewujudkan masyarakat Indonesia yang setara, adil, dan bebas dari kekerasan berbasis gender."',
                     textAlign: TextAlign.center,
-                    style: AppTheme.captionMuted,
+                    style: TextStyle(
+                      color: colors.text3,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
-                // Tombol Mulai
                 SizedBox(
                   width: double.infinity,
                   height: 53,
@@ -82,7 +97,7 @@ class LoginPage1 extends StatelessWidget {
                       foregroundColor: const Color(0xFFF5F6FB),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                        side: const BorderSide(color: AppTheme.borderDefault),
+                        side: BorderSide(color: colors.border),
                       ),
                       elevation: 4,
                     ),
@@ -103,13 +118,13 @@ class LoginPage1 extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String number, String label) {
+  Widget _buildStatItem(ShevaColors colors, String number, String label) {
     return Column(
       children: [
         Text(
           number,
-          style: const TextStyle(
-            color: Color(0xFFA49AE2),
+          style: TextStyle(
+            color: colors.accent2,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
@@ -117,7 +132,11 @@ class LoginPage1 extends StatelessWidget {
         const SizedBox(height: AppTheme.spacingXxs),
         Text(
           label,
-          style: AppTheme.labelMuted,
+          style: TextStyle(
+            color: colors.text3,
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

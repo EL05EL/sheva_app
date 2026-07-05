@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
 import '../widgets/hotline_tile.dart';
 
@@ -37,35 +38,63 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
     'Lainnya',
   ];
 
-  // 🔥 TAMBAHKAN CS Fadil di daftar hotline
+  // ============================================================
+  // 🔥 DAFTAR HOTLINE DENGAN NOMOR WHATSAPP VALID
+  // ============================================================
   final List<Hotline> _hotlines = [
     Hotline(
       name: 'SAPA 129',
       phone: '129',
+      whatsapp: '08111129129',
       description: 'Hotline Nasional 24 jam untuk korban kekerasan',
     ),
     Hotline(
       name: 'Komnas Perempuan',
-      phone: '08123456787',
+      phone: '0213903963',
+      whatsapp: '08179323375',
       description: 'Komisi Nasional Anti Kekerasan terhadap Perempuan',
     ),
     Hotline(
       name: 'LBH APIK',
-      phone: '08123456786',
+      phone: '02187797289',
+      whatsapp: '08138882669',
       description: 'Lembaga Bantuan Hukum untuk perempuan',
     ),
     Hotline(
       name: 'Yayasan Pulih',
-      phone: '08123456785',
+      phone: '02178842580',
+      whatsapp: '08118436633',
       description: 'Layanan konseling dan pemulihan trauma',
     ),
-    // 🔥 TAMBAHAN: CS SHEVA - Fadil
     Hotline(
       name: 'CS SHEVA - Fadil',
       phone: '081243265263',
+      whatsapp: '081243265263',
       description: 'Customer Service SHEVA (24 jam)',
     ),
   ];
+
+  // ============================================================
+  // 🔥 FUNGSI KIRIM KE WHATSAPP
+  // ============================================================
+  Future<void> _sendToWhatsApp(String phone, String message) async {
+    try {
+      String cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+      if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62${cleanPhone.substring(1)}';
+      }
+      final encodedMessage = Uri.encodeComponent(message);
+      final url = 'https://wa.me/$cleanPhone?text=$encodedMessage';
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showSnackBar('Tidak dapat membuka WhatsApp.');
+      }
+    } catch (e) {
+      _showSnackBar('Terjadi kesalahan: $e');
+    }
+  }
 
   Future<void> _sendReportToWhatsApp(Hotline hotline) async {
     if (_selectedReportType == null) {
@@ -95,51 +124,37 @@ Solidarity Hub for Equality, Voice, and Action
 For She, For He, For All.
 ''';
 
-    String cleanPhone = hotline.phone.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '62${cleanPhone.substring(1)}';
-    }
-
-    final encodedMessage = Uri.encodeComponent(message);
-    final url = 'https://wa.me/$cleanPhone?text=$encodedMessage';
-    final uri = Uri.parse(url);
-
     setState(() => _isLoading = false);
-
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        _showSnackBar('Tidak dapat membuka WhatsApp.');
-      }
-    } catch (e) {
-      _showSnackBar('Terjadi kesalahan: $e');
-    }
+    await _sendToWhatsApp(hotline.whatsapp ?? hotline.phone, message);
   }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppTheme.primary,
+        backgroundColor: context.shevaColors.header,
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
+  // ============================================================
+  // 🔥 BUILD
+  // ============================================================
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryLight,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         title: const Text(
           'SHEVA Report',
-          style: AppTheme.h2Medium,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: SingleChildScrollView(
@@ -147,21 +162,27 @@ For She, For He, For All.
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Info
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingSm),
-              decoration: AppTheme.cardDecoration(),
-              child: const Text(
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
+              ),
+              child: Text(
                 'Semua laporan bersifat rahasia dan dienkripsi. Data anda tidak akan dibagikan tanpa persetujuan anda. Anda bisa memilih untuk melapor secara anonim.',
-                style: AppTheme.label,
+                style: TextStyle(
+                  color: colors.text2,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Jenis Laporan
-            const Text(
+            Text(
               'Jenis Laporan*',
               style: TextStyle(
-                color: AppTheme.textPurpleLight,
+                color: colors.accent,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -175,21 +196,18 @@ For She, For He, For All.
                 return InkWell(
                   onTap: () => setState(() => _selectedReportType = type),
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
+                  splashColor: colors.text1.withOpacity(0.1),
+                  highlightColor: colors.text1.withOpacity(0.05),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingMd,
                       vertical: AppTheme.spacingXs,
                     ),
                     decoration: ShapeDecoration(
-                      color:
-                          isSelected ? AppTheme.surfaceCard2 : AppTheme.surface,
+                      color: isSelected ? colors.accentMid : colors.card,
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
-                          color: isSelected
-                              ? AppTheme.secondary
-                              : AppTheme.borderDefault,
+                          color: isSelected ? colors.accent : colors.border,
                         ),
                         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
@@ -197,8 +215,7 @@ For She, For He, For All.
                     child: Text(
                       type,
                       style: TextStyle(
-                        color:
-                            isSelected ? Colors.white : AppTheme.textSecondary,
+                        color: isSelected ? colors.text1 : colors.text2,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -208,11 +225,10 @@ For She, For He, For All.
               }).toList(),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Lokasi
-            const Text(
+            Text(
               'Lokasi Kejadian',
               style: TextStyle(
-                color: AppTheme.textPurpleLight,
+                color: colors.accent,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -229,21 +245,18 @@ For She, For He, For All.
                     child: InkWell(
                       onTap: () => setState(() => _selectedLocation = location),
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      splashColor: Colors.white.withOpacity(0.1),
-                      highlightColor: Colors.white.withOpacity(0.05),
+                      splashColor: colors.text1.withOpacity(0.1),
+                      highlightColor: colors.text1.withOpacity(0.05),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppTheme.spacingSm,
                           vertical: AppTheme.spacingXs,
                         ),
                         decoration: ShapeDecoration(
-                          color:
-                              isSelected ? AppTheme.chipBg : AppTheme.surface,
+                          color: isSelected ? colors.accentMid : colors.card,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: isSelected
-                                  ? AppTheme.secondary
-                                  : AppTheme.borderDefault,
+                              color: isSelected ? colors.accent : colors.border,
                             ),
                             borderRadius:
                                 BorderRadius.circular(AppTheme.radiusMd),
@@ -252,9 +265,7 @@ For She, For He, For All.
                         child: Text(
                           location,
                           style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : AppTheme.textSecondary,
+                            color: isSelected ? colors.text1 : colors.text2,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -266,11 +277,10 @@ For She, For He, For All.
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Deskripsi
-            const Text(
+            Text(
               'Deskripsi Kejadian*',
               style: TextStyle(
-                color: AppTheme.textPurpleLight,
+                color: colors.accent,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -279,17 +289,20 @@ For She, For He, For All.
             Container(
               height: 120,
               padding: const EdgeInsets.all(AppTheme.spacingSm),
-              decoration: AppTheme.cardDecoration(),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
+              ),
               child: TextField(
                 controller: _descriptionController,
                 maxLines: null,
                 expands: true,
-                style: AppTheme.body,
-                decoration: const InputDecoration(
+                style: TextStyle(color: colors.text1, fontSize: 14),
+                decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText:
-                      'Ceritakan apa yang terjadi. Anda tidak perlu menyertakan detail yang membuat Anda tidak nyaman...',
-                  hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                  hintText: 'Ceritakan apa yang terjadi...',
+                  hintStyle: TextStyle(color: colors.text4, fontSize: 13),
                 ),
               ),
             ),
@@ -298,52 +311,49 @@ For She, For He, For All.
               alignment: Alignment.centerRight,
               child: Text(
                 '${_descriptionController.text.length} Karakter',
-                style: const TextStyle(
-                  color: Color(0xFFC4C5C8),
+                style: TextStyle(
+                  color: colors.text4,
                   fontSize: 10,
                 ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Laporan Anonim
             Row(
               children: [
                 Switch(
                   value: _isAnonym,
                   onChanged: (value) => setState(() => _isAnonym = value),
-                  activeColor: AppTheme.secondary,
-                  activeTrackColor: AppTheme.surfaceCard2,
+                  activeColor: colors.accent,
+                  activeTrackColor: colors.accentMid,
                 ),
                 const SizedBox(width: AppTheme.spacingXs),
-                const Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Laporan Anonim\n',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Laporan Anonim',
+                        style: TextStyle(
+                          color: colors.text1,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
-                        TextSpan(
-                          text: 'Nama anda tidak akan dicantumkan',
-                          style: TextStyle(
-                            color: AppTheme.textPurpleMuted,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w400,
-                          ),
+                      ),
+                      Text(
+                        'Nama anda tidak akan dicantumkan',
+                        style: TextStyle(
+                          color: colors.text4,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const Divider(color: AppTheme.borderDefault),
+            const Divider(color: Colors.grey),
             const SizedBox(height: AppTheme.spacingXs),
-            // Tombol Kirim
             SizedBox(
               width: double.infinity,
               height: 53,
@@ -358,7 +368,7 @@ For She, For He, For All.
                         }
                         showModalBottomSheet(
                           context: context,
-                          backgroundColor: AppTheme.background,
+                          backgroundColor: colors.bgDeep,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(AppTheme.spacingLg)),
@@ -368,9 +378,13 @@ For She, For He, For All.
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
+                                Text(
                                   'Kirim Laporan ke:',
-                                  style: AppTheme.h2,
+                                  style: TextStyle(
+                                    color: colors.text1,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                                 const SizedBox(height: AppTheme.spacingMd),
                                 ..._hotlines.map((hotline) => Column(
@@ -378,21 +392,23 @@ For She, For He, For All.
                                         HotlineTile(
                                           name: hotline.name,
                                           phone: hotline.phone,
+                                          whatsapp: hotline.whatsapp,
                                           description: hotline.description,
                                           onTap: () {
                                             Navigator.pop(context);
                                             _sendReportToWhatsApp(hotline);
                                           },
                                         ),
-                                        const Divider(
-                                            color: AppTheme.borderDefault),
+                                        Divider(color: colors.border),
                                       ],
                                     )),
                                 const SizedBox(height: AppTheme.spacingXs),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: const Text('Batal',
-                                      style: AppTheme.captionMuted),
+                                  child: Text(
+                                    'Batal',
+                                    style: TextStyle(color: colors.text3),
+                                  ),
                                 ),
                               ],
                             ),
@@ -400,11 +416,11 @@ For She, For He, For All.
                         );
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.surfaceCardDark,
-                  foregroundColor: const Color(0xFFF5F6FB),
+                  backgroundColor: colors.accentMid,
+                  foregroundColor: colors.text1,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    side: const BorderSide(color: AppTheme.borderDefault),
+                    side: BorderSide(color: colors.border),
                   ),
                   elevation: AppTheme.elevationMedium,
                 ),
@@ -425,10 +441,14 @@ For She, For He, For All.
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            const Center(
+            Center(
               child: Text(
                 'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                style: AppTheme.tiny,
+                style: TextStyle(
+                  color: colors.text3,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ],
@@ -438,14 +458,19 @@ For She, For He, For All.
   }
 }
 
+// ============================================================
+// 🔥 MODEL HOTLINE (DENGAN WHATSAPP)
+// ============================================================
 class Hotline {
   final String name;
   final String phone;
+  final String? whatsapp;
   final String description;
 
   Hotline({
     required this.name,
     required this.phone,
+    this.whatsapp,
     required this.description,
   });
 }

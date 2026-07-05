@@ -5,9 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
-import '../app_theme.dart';
-
-// 🔥 Import hotline_tile.dart TIDAK dipakai karena kita pakai _buildHotlineOption sendiri
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
 class ShevaShieldPage extends StatefulWidget {
   const ShevaShieldPage({super.key});
@@ -33,9 +32,7 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
         maxHeight: 1024,
         imageQuality: 80,
       );
-      if (image != null) {
-        setState(() => _imageFile = File(image.path));
-      }
+      if (image != null) setState(() => _imageFile = File(image.path));
     } catch (e) {
       _showSnackBar('Gagal membuka kamera: $e');
     }
@@ -49,9 +46,7 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
         maxHeight: 1024,
         imageQuality: 80,
       );
-      if (image != null) {
-        setState(() => _imageFile = File(image.path));
-      }
+      if (image != null) setState(() => _imageFile = File(image.path));
     } catch (e) {
       _showSnackBar('Gagal membuka galeri: $e');
     }
@@ -144,12 +139,10 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     }
   }
 
-  // 🔥 FUNGSI UTAMA: Kirim laporan ke hotline (parameter sudah non-nullable semua)
   Future<void> _sendReportToHotline(String phoneNumber, String message,
       {bool withImage = false}) async {
     try {
       if (withImage && _imageFile != null && await _imageFile!.exists()) {
-        // Kirim dengan gambar menggunakan share_plus (akan muncul pilihan aplikasi)
         final xFile = XFile(_imageFile!.path);
         await Share.shareXFiles(
           [xFile],
@@ -157,7 +150,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
           subject: 'Laporan Darurat SHEVA',
         );
       } else {
-        // Kirim teks langsung via WhatsApp (tanpa pilihan aplikasi)
         String cleanPhone = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
         if (cleanPhone.startsWith('0')) {
           cleanPhone = '62${cleanPhone.substring(1)}';
@@ -176,15 +168,11 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     }
   }
 
-  // 🔥 MENAMPILKAN DIALOG PILIHAN jika ada gambar
   void _showSendOptions(String phoneNumber, String message) {
     if (_imageFile == null) {
-      // Jika tidak ada gambar, langsung kirim teks
       _sendReportToHotline(phoneNumber, message, withImage: false);
       return;
     }
-
-    // Jika ada gambar, tampilkan dialog pilihan
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -192,12 +180,12 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
             const Text('Kirim Laporan', style: TextStyle(color: Colors.white)),
         content: const Text(
           'Anda memiliki foto bukti. Pilih cara pengiriman:',
-          style: TextStyle(color: AppTheme.textSecondary),
+          style: TextStyle(color: Colors.white70),
         ),
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.shevaColors.bgDeep,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          side: const BorderSide(color: AppTheme.borderDefault),
+          side: BorderSide(color: context.shevaColors.border),
         ),
         actions: [
           TextButton(
@@ -214,7 +202,7 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
               _sendReportToHotline(phoneNumber, message, withImage: true);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.secondary,
+              backgroundColor: context.shevaColors.accent,
               foregroundColor: Colors.white,
             ),
             child: const Text('Kirim dengan Gambar'),
@@ -224,7 +212,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     );
   }
 
-  // 🔥 FUNGSI KIRIM LAPORAN DARURAT (membuka bottom sheet)
   Future<void> _sendEmergencyReport() async {
     if (_imageFile == null && _descriptionController.text.isEmpty) {
       _showSnackBar('Silakan tambahkan foto atau deskripsi kejadian.');
@@ -261,7 +248,7 @@ For She, For He, For All.
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.shevaColors.bgDeep,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(AppTheme.spacingLg)),
@@ -271,24 +258,28 @@ For She, For He, For All.
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Kirim Laporan ke:',
-              style: AppTheme.h2,
+              style: TextStyle(
+                color: context.shevaColors.text1,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
             _buildHotlineOption('SAPA 129', '129', message),
-            const Divider(color: AppTheme.borderDefault),
+            Divider(color: context.shevaColors.border),
             _buildHotlineOption('Polisi 110', '110', message),
-            const Divider(color: AppTheme.borderDefault),
+            Divider(color: context.shevaColors.border),
             _buildHotlineOption('Ambulance 118', '118', message),
-            const Divider(color: AppTheme.borderDefault),
-            _buildHotlineOption('Komnas Perempuan', '08123456787', message),
-            const Divider(color: AppTheme.borderDefault),
+            Divider(color: context.shevaColors.border),
+            _buildHotlineOption('Komnas Perempuan', '(021) 3903963', message),
+            Divider(color: context.shevaColors.border),
             _buildHotlineOption('CS SHEVA - Fadil', '081243265263', message),
             const SizedBox(height: AppTheme.spacingMd),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: AppTheme.captionMuted),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
             ),
           ],
         ),
@@ -296,21 +287,20 @@ For She, For He, For All.
     );
   }
 
-  // 🔥 WIDGET HOTLINE OPTION dengan onTap yang memanggil dialog pilihan
-  // 🔥 PERBAIKAN: Semua parameter bertipe String (non-nullable)
   Widget _buildHotlineOption(String name, String phoneNumber, String message) {
+    final colors = context.shevaColors;
     return ListTile(
-      leading:
-          const Icon(Icons.phone, color: Colors.green, size: AppTheme.iconMain),
-      title: Text(name, style: AppTheme.body),
-      subtitle: Text(phoneNumber, style: AppTheme.captionMuted),
-      trailing: const Icon(Icons.chevron_right,
-          color: Colors.white, size: AppTheme.iconMain),
+      leading: Icon(Icons.phone, color: Colors.green, size: AppTheme.iconMain),
+      title: Text(name, style: TextStyle(color: colors.text1, fontSize: 16)),
+      subtitle: Text(phoneNumber,
+          style: TextStyle(color: colors.text3, fontSize: 14)),
+      trailing: Icon(Icons.chevron_right,
+          color: colors.text1, size: AppTheme.iconMain),
       onTap: () {
-        Navigator.pop(context); // Tutup bottom sheet
-        _showSendOptions(phoneNumber, message); // Tampilkan dialog pilihan
+        Navigator.pop(context);
+        _showSendOptions(phoneNumber, message);
       },
-      splashColor: Colors.white.withOpacity(0.1),
+      splashColor: colors.text1.withOpacity(0.1),
     );
   }
 
@@ -318,7 +308,7 @@ For She, For He, For All.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppTheme.primary,
+        backgroundColor: context.shevaColors.header,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -326,17 +316,19 @@ For She, For He, For All.
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       appBar: AppBar(
         title:
             const Text('SHEVA Shield', style: TextStyle(color: Colors.white)),
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.send, size: AppTheme.iconMain),
+            icon:
+                Icon(Icons.send, size: AppTheme.iconMain, color: colors.text1),
             onPressed: _isLoading ? null : _sendEmergencyReport,
             padding: const EdgeInsets.all(AppTheme.spacingXs),
             constraints: const BoxConstraints(
@@ -351,11 +343,11 @@ For She, For He, For All.
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Rekam Bukti
-            const Text(
-              'Rekam Bukti',
-              style: AppTheme.bodyBold,
-            ),
+            Text('Rekam Bukti',
+                style: TextStyle(
+                    color: colors.text1,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700)),
             const SizedBox(height: AppTheme.spacingXs),
             Row(
               children: [
@@ -363,34 +355,29 @@ For She, For He, For All.
                   child: InkWell(
                     onTap: _pickFromCamera,
                     borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                    splashColor: Colors.white.withOpacity(0.1),
-                    highlightColor: Colors.white.withOpacity(0.05),
+                    splashColor: colors.text1.withOpacity(0.1),
+                    highlightColor: colors.text1.withOpacity(0.05),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: AppTheme.spacingMd),
                       decoration: ShapeDecoration(
-                        color: AppTheme.dangerBg,
+                        color: colors.danger.withOpacity(0.3),
                         shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: AppTheme.borderPink),
+                          side: BorderSide(color: colors.sosRed),
                           borderRadius:
                               BorderRadius.circular(AppTheme.radiusXl),
                         ),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.camera_alt,
-                                color: AppTheme.dangerLight,
-                                size: AppTheme.iconMain),
-                            SizedBox(width: AppTheme.spacingXs),
-                            Text(
-                              'Buka kamera',
-                              style: TextStyle(
-                                color: AppTheme.dangerLight,
-                                fontSize: 14,
-                              ),
-                            ),
+                                color: colors.sosRed, size: AppTheme.iconMain),
+                            const SizedBox(width: AppTheme.spacingXs),
+                            Text('Buka kamera',
+                                style: TextStyle(
+                                    color: colors.sosRed, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -402,33 +389,28 @@ For She, For He, For All.
                   child: InkWell(
                     onTap: _pickFromGallery,
                     borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                    splashColor: Colors.white.withOpacity(0.1),
-                    highlightColor: Colors.white.withOpacity(0.05),
+                    splashColor: colors.text1.withOpacity(0.1),
+                    highlightColor: colors.text1.withOpacity(0.05),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: AppTheme.spacingMd),
                       decoration: ShapeDecoration(
-                        color: AppTheme.surface,
+                        color: colors.card,
                         shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(AppTheme.radiusXl),
                         ),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.photo_library,
-                                color: Color(0xFF8B85A6),
-                                size: AppTheme.iconMain),
+                                color: colors.text3, size: AppTheme.iconMain),
                             const SizedBox(width: AppTheme.spacingXs),
-                            Text(
-                              'Dari galeri',
-                              style: TextStyle(
-                                color: Color(0xFF8B85A6),
-                                fontSize: 14,
-                              ),
-                            ),
+                            Text('Dari galeri',
+                                style: TextStyle(
+                                    color: colors.text3, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -438,29 +420,23 @@ For She, For He, For All.
               ],
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            // Preview Foto
             Container(
               width: double.infinity,
               height: 120,
-              decoration: AppTheme.cardDecoration(),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
+              ),
               child: _imageFile != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      child: Image.file(
-                        _imageFile!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
+                      child: Image.file(_imageFile!,
+                          fit: BoxFit.cover, width: double.infinity),
                     )
-                  : const Center(
-                      child: Text(
-                        'Belum ada foto/bukti',
-                        style: TextStyle(
-                          color: Color(0xFF8B85A6),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+                  : Center(
+                      child: Text('Belum ada foto/bukti',
+                          style: TextStyle(color: colors.text3, fontSize: 14)),
                     ),
             ),
             if (_imageFile != null)
@@ -469,71 +445,56 @@ For She, For He, For All.
                 child: InkWell(
                   onTap: () => setState(() => _imageFile = null),
                   borderRadius: BorderRadius.circular(8),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.delete,
-                          color: Colors.red, size: AppTheme.iconSmall),
-                      SizedBox(width: AppTheme.spacingXxs),
-                      Text(
-                        'Hapus foto',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
+                          color: colors.danger, size: AppTheme.iconSmall),
+                      const SizedBox(width: AppTheme.spacingXxs),
+                      Text('Hapus foto',
+                          style: TextStyle(color: colors.danger, fontSize: 12)),
                     ],
                   ),
                 ),
               ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Lokasi
-            const Text(
-              'Lokasi Kejadian',
-              style: AppTheme.body,
-            ),
+            Text('Lokasi Kejadian',
+                style: TextStyle(color: colors.text1, fontSize: 16)),
             const SizedBox(height: AppTheme.spacingXs),
             InkWell(
               onTap: _detectLocation,
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              splashColor: Colors.white.withOpacity(0.1),
-              highlightColor: Colors.white.withOpacity(0.05),
+              splashColor: colors.text1.withOpacity(0.1),
+              highlightColor: colors.text1.withOpacity(0.05),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacingMd,
-                  vertical: AppTheme.spacingSm,
-                ),
+                    horizontal: AppTheme.spacingMd,
+                    vertical: AppTheme.spacingSm),
                 decoration: ShapeDecoration(
-                  color: AppTheme.locateBg,
+                  color: colors.cardWarm,
                   shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: AppTheme.locateBorder),
+                    side: BorderSide(color: colors.accent2),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                 ),
                 child: Row(
                   children: [
                     _isLoadingLocation
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: AppTheme.spacingLg,
                             height: AppTheme.spacingLg,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppTheme.accentPink,
-                            ),
+                                strokeWidth: 2, color: colors.accent),
                           )
-                        : const Icon(Icons.location_on,
-                            color: AppTheme.accentPink,
-                            size: AppTheme.spacingLg),
+                        : Icon(Icons.location_on,
+                            color: colors.accent, size: AppTheme.spacingLg),
                     const SizedBox(width: AppTheme.spacingXs),
                     Expanded(
                       child: Text(
                         _isLoadingLocation
                             ? 'Mendapatkan lokasi...'
                             : _location,
-                        style: const TextStyle(
-                          color: Color(0xFFF6F3F7),
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: colors.text1, fontSize: 14),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -545,75 +506,109 @@ For She, For He, For All.
             const SizedBox(height: AppTheme.spacingXs),
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.spacingMd,
-                vertical: AppTheme.spacingXxs,
-              ),
-              decoration: ShapeDecoration(
-                color: const Color(0x26DAD3D8),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: AppTheme.background),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
+                  horizontal: AppTheme.spacingMd,
+                  vertical: AppTheme.spacingXxs),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
               ),
               child: TextField(
                 controller: _locationController,
-                style: const TextStyle(color: Color(0xFFF6F3F7), fontSize: 14),
-                decoration: const InputDecoration(
+                style: TextStyle(color: colors.text1, fontSize: 14),
+                decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'atau ketik lokasi manual...',
-                  hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 14),
+                  hintStyle: TextStyle(color: colors.text4, fontSize: 14),
                 ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            // Deskripsi
-            const Text(
-              'Deskripsi Kejadian',
-              style: AppTheme.body,
-            ),
+            Text('Deskripsi Kejadian',
+                style: TextStyle(color: colors.text1, fontSize: 16)),
             const SizedBox(height: AppTheme.spacingXs),
             Container(
               height: 150,
               padding: const EdgeInsets.all(AppTheme.spacingSm),
-              decoration: AppTheme.cardDecoration(),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: colors.border),
+              ),
               child: TextField(
                 controller: _descriptionController,
                 maxLines: null,
                 expands: true,
-                style: AppTheme.body,
-                decoration: const InputDecoration(
+                style: TextStyle(color: colors.text1, fontSize: 14),
+                decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Ceritakan kejadian secara detail...',
-                  hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 14),
+                  hintStyle: TextStyle(color: colors.text4, fontSize: 14),
                 ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingXl),
-            // Layanan Darurat
-            const Text(
-              'Layanan Darurat',
-              style: AppTheme.bodyBold,
+
+            // ============================================================
+            // 🔥 LAYANAN DARURAT - Posisi seimbang dengan Row dan Expanded
+            // ============================================================
+            Text('Layanan Darurat',
+                style: TextStyle(
+                    color: colors.text1,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700)),
+            const SizedBox(height: AppTheme.spacingSm),
+            // Gunakan Row dengan 4 card yang sama lebarnya
+            Row(
+              children: [
+                Expanded(
+                  child: _buildEmergencyCard(
+                    'SAPA 129',
+                    'Hotline Nasional 24 jam',
+                    '129',
+                    colors.sosRed, // merah
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacingSm),
+                Expanded(
+                  child: _buildEmergencyCard(
+                    'Polisi 110',
+                    'Layanan Darurat',
+                    '110',
+                    colors.blue, // 🔥 BIRU
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: AppTheme.spacingSm),
-            Wrap(
-              spacing: AppTheme.spacingSm,
-              runSpacing: AppTheme.spacingSm,
+            Row(
               children: [
-                _buildEmergencyCard(
-                    'SAPA 129', 'Hotline Nasional 24 jam', '129'),
-                _buildEmergencyCard('Polisi 110', 'Layanan Darurat', '110'),
-                _buildEmergencyCard(
-                    'Ambulance 118', 'Unit Gawat Darurat', '118'),
-                _buildEmergencyCard(
-                    'Into The Light', 'Krisis Mental 24 jam', '189'),
+                Expanded(
+                  child: _buildEmergencyCard(
+                    'Ambulance 118',
+                    'Unit Gawat Darurat',
+                    '118',
+                    colors.green, // hijau
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacingSm),
+                Expanded(
+                  child: _buildEmergencyCard(
+                    'Into The Light',
+                    'Krisis Mental 24 jam',
+                    '189',
+                    colors.iconProtection, // pink
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: AppTheme.spacingXl),
-            // Panduan Keselamatan
-            const Text(
-              'Panduan Keselamatan',
-              style: AppTheme.bodyBold,
-            ),
+
+            Text('Panduan Keselamatan',
+                style: TextStyle(
+                    color: colors.text1,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700)),
             const SizedBox(height: AppTheme.spacingSm),
             _buildSafetyGuide('1', 'Pergi ke tempat ramai'),
             _buildSafetyGuide('2', 'Hubungi orang yang anda percaya'),
@@ -623,15 +618,15 @@ For She, For He, For All.
             _buildSafetyGuide('5', 'Simpan bukti (foto rekaman)'),
             _buildSafetyGuide('6', 'Jika darurat hubungi pihak Berwajib'),
             const SizedBox(height: AppTheme.spacingMd),
-            // Tombol Kirim
+
             SizedBox(
               width: double.infinity,
               height: 53,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _sendEmergencyReport,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.dangerDark,
-                  foregroundColor: Colors.white,
+                  backgroundColor: colors.sosRed,
+                  foregroundColor: colors.text1,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
@@ -642,32 +637,26 @@ For She, For He, For All.
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
+                            strokeWidth: 2, color: Colors.white),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.send,
-                              color: Colors.white, size: AppTheme.iconMain),
-                          SizedBox(width: AppTheme.spacingXs),
-                          Text(
-                            'Kirim Laporan Darurat',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                              color: colors.text1, size: AppTheme.iconMain),
+                          const SizedBox(width: AppTheme.spacingXs),
+                          const Text('Kirim Laporan Darurat',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w700)),
                         ],
                       ),
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            const Center(
+            Center(
               child: Text(
                 'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                style: AppTheme.tiny,
+                style: TextStyle(color: colors.text3, fontSize: 11),
               ),
             ),
           ],
@@ -676,40 +665,43 @@ For She, For He, For All.
     );
   }
 
-  // 🔥 EMERGENCY CARD (langsung ke dialog pilihan)
+  // 🔥 WIDGET CARD LAYANAN DARURAT - Ukuran seragam
   Widget _buildEmergencyCard(
-      String title, String subtitle, String phoneNumber) {
+      String title, String subtitle, String phoneNumber, Color cardColor) {
+    final colors = context.shevaColors;
     final message =
         'Halo, saya membutuhkan bantuan darurat. ${_descriptionController.text}';
     return InkWell(
       onTap: () => _showSendOptions(phoneNumber, message),
       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
-        width: 160,
-        padding: const EdgeInsets.all(AppTheme.spacingSm),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppTheme.spacingMd, horizontal: AppTheme.spacingSm),
         decoration: ShapeDecoration(
-          color: AppTheme.emergencyCardBg,
+          color: cardColor,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: AppTheme.borderEmergency),
+            side: BorderSide(color: colors.text1.withOpacity(0.3), width: 1.5),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               phoneNumber,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
+              style: TextStyle(
+                color: colors.text1,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.text1,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -717,7 +709,10 @@ For She, For He, For All.
             ),
             Text(
               subtitle,
-              style: AppTheme.labelMuted,
+              style: TextStyle(
+                color: colors.text1.withOpacity(0.85),
+                fontSize: 10,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -727,29 +722,21 @@ For She, For He, For All.
   }
 
   Widget _buildSafetyGuide(String number, String text) {
+    final colors = context.shevaColors;
     return Container(
       padding: const EdgeInsets.symmetric(
-        vertical: AppTheme.spacingSm,
-        horizontal: AppTheme.spacingMd,
-      ),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppTheme.borderDefault)),
-      ),
+          vertical: AppTheme.spacingSm, horizontal: AppTheme.spacingMd),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: colors.border))),
       child: Row(
         children: [
-          Text(
-            number,
-            style: const TextStyle(
-              color: AppTheme.danger,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          Text(number,
+              style: TextStyle(
+                  color: colors.danger,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700)),
           const SizedBox(width: AppTheme.spacingMd),
-          Text(
-            text,
-            style: AppTheme.body,
-          ),
+          Text(text, style: TextStyle(color: colors.text1, fontSize: 16)),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
 class LoginPage2 extends StatefulWidget {
   const LoginPage2({super.key});
@@ -60,8 +61,9 @@ class _LoginPage2State extends State<LoginPage2> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -71,7 +73,6 @@ class _LoginPage2State extends State<LoginPage2> {
             ),
             child: Column(
               children: [
-                // LOGO
                 Container(
                   width: 148,
                   height: 148,
@@ -86,36 +87,51 @@ class _LoginPage2State extends State<LoginPage2> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
-                const Text(
+                Text(
                   'Kenalkan diri Anda',
-                  style: AppTheme.h2Secondary,
+                  style: TextStyle(
+                    color: colors.accent,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: AppTheme.spacingXs),
-                const Text(
+                Text(
                   'Informasi ini hanya tersimpan di perangkat Anda dan tidak dikirim ke mana pun',
                   textAlign: TextAlign.center,
-                  style: AppTheme.captionMuted,
+                  style: TextStyle(
+                    color: colors.text3,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-                // Nama Panggilan
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Nama Panggilan',
-                    style: AppTheme.body,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXs),
                 Container(
-                  decoration: AppTheme.cardDecoration(),
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    border: Border.all(color: colors.border),
+                  ),
                   child: TextField(
                     controller: _nameController,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: colors.text1, fontSize: 14),
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Masukan nama anda',
-                      hintStyle: AppTheme.labelMuted,
-                      contentPadding: EdgeInsets.symmetric(
+                      hintStyle: TextStyle(color: colors.text4, fontSize: 14),
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.spacingMd,
                         vertical: AppTheme.spacingSm,
                       ),
@@ -123,12 +139,15 @@ class _LoginPage2State extends State<LoginPage2> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingLg),
-                // Identitas Gender
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Identitas gender',
-                    style: AppTheme.body,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXs),
@@ -144,7 +163,6 @@ class _LoginPage2State extends State<LoginPage2> {
                   ],
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
-                // Tombol Lanjutkan
                 SizedBox(
                   width: double.infinity,
                   height: 53,
@@ -155,7 +173,7 @@ class _LoginPage2State extends State<LoginPage2> {
                       foregroundColor: const Color(0xFFF5F6FB),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                        side: const BorderSide(color: AppTheme.borderDefault),
+                        side: BorderSide(color: colors.border),
                       ),
                       elevation: 4,
                     ),
@@ -171,9 +189,13 @@ class _LoginPage2State extends State<LoginPage2> {
                 const SizedBox(height: AppTheme.spacingMd),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Text(
+                  child: Text(
                     'Kembali',
-                    style: AppTheme.captionMuted,
+                    style: TextStyle(
+                      color: colors.text3,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
               ],
@@ -185,17 +207,18 @@ class _LoginPage2State extends State<LoginPage2> {
   }
 
   Widget _buildGenderOption(String gender) {
+    final colors = context.shevaColors;
     final isSelected = _selectedGender == gender;
     return GestureDetector(
       onTap: () => setState(() => _selectedGender = gender),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingMd),
         decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF3D1A4A) : AppTheme.surface,
+          color: isSelected ? colors.accentMid : colors.card,
           shape: RoundedRectangleBorder(
             side: BorderSide(
               width: 1,
-              color: isSelected ? AppTheme.secondary : AppTheme.borderDefault,
+              color: isSelected ? colors.accent : colors.border,
             ),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
@@ -204,7 +227,7 @@ class _LoginPage2State extends State<LoginPage2> {
           child: Text(
             gender,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppTheme.textHint,
+              color: isSelected ? colors.text1 : colors.text4,
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),

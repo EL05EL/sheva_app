@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 
-/// SOS Floating Action Button yang reusable.
-/// Muncul di semua halaman kecuali Shield (karena Shield sudah punya tombol kirim).
 class SosButton extends StatelessWidget {
   const SosButton({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return FloatingActionButton(
       onPressed: () => Navigator.pushNamed(context, '/shield'),
-      backgroundColor: AppTheme.danger,
-      foregroundColor: Colors.white,
+      backgroundColor: colors.sosRed,
+      foregroundColor: colors.text1,
       elevation: AppTheme.elevationFAB,
       child: const Icon(Icons.sos, size: 32),
       shape: const CircleBorder(

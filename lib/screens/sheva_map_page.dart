@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
 
 class ShevaMapPage extends StatefulWidget {
@@ -20,6 +21,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       address: 'Seluruh Indonesia',
       hours: '24 Jam',
       phone: '129',
+      whatsapp: '08111129129',
       isEmergency: true,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=SAPA+129+Indonesia',
@@ -30,6 +32,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       address: 'Jakarta',
       hours: '24 Jam',
       phone: '08123456789',
+      whatsapp: '0811114537',
       isEmergency: true,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=Into+The+Light+IDN+Jakarta',
@@ -40,6 +43,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       address: 'Jakarta',
       hours: 'Senin-Jumat, 09.00-17.00',
       phone: '08123456788',
+      whatsapp: '08179323375',
       isEmergency: false,
       mapUrl: 'https://www.google.com/maps/search/?api=1&query=SAFEnet+Jakarta',
     ),
@@ -48,26 +52,30 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       city: 'Jakarta Pusat',
       address: 'Jakarta Pusat',
       hours: 'Senin-Jumat, 09.00-17.00',
-      phone: '08123456787',
+      phone: '0213903963',
+      whatsapp: '08179323375',
       isEmergency: false,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=Komnas+Perempuan+Jakarta',
     ),
     Service(
-      name: 'LBH Jakarta',
+      name: 'LBH APIK',
       city: 'Jakarta Pusat',
       address: 'Jakarta Pusat',
       hours: 'Senin-Jumat, 09.00-17.00',
-      phone: '08123456786',
+      phone: '02187797289',
+      whatsapp: '08138882669',
       isEmergency: false,
-      mapUrl: 'https://www.google.com/maps/search/?api=1&query=LBH+Jakarta',
+      mapUrl:
+          'https://www.google.com/maps/search/?api=1&query=LBH+APIK+Jakarta',
     ),
     Service(
       name: 'Yayasan Pulih',
       city: 'Jakarta Utara',
       address: 'Jakarta Utara',
       hours: 'Senin-Sabtu, 09.00-18.00',
-      phone: '08123456785',
+      phone: '02178842580',
+      whatsapp: '08118436633',
       isEmergency: false,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=Yayasan+Pulih+Jakarta',
@@ -78,6 +86,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       address: 'Yogyakarta',
       hours: 'Senin-Jumat, 08.39-16.30',
       phone: '08123456784',
+      whatsapp: '08123456784',
       isEmergency: false,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=Rifka+Annisa+WCC+Yogyakarta',
@@ -88,6 +97,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       address: 'Bengkulu',
       hours: 'Senin-Jumat, 08.00-17.00',
       phone: '08123456783',
+      whatsapp: '08123456783',
       isEmergency: false,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=WCC+Cahaya+Perempuan+Bengkulu',
@@ -98,6 +108,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       address: 'Jakarta Pusat',
       hours: 'Senin-Jumat, 09.00-17.00',
       phone: '08123456782',
+      whatsapp: '08123456782',
       isEmergency: false,
       mapUrl: 'https://www.google.com/maps/search/?api=1&query=YLBHI+Jakarta',
     ),
@@ -123,17 +134,15 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
     return services.where((s) => s.city == selectedFilter).toList();
   }
 
-  // 🔥 PERBAIKAN: Fungsi WhatsApp dengan penanganan error dan fallback
   Future<void> _whatsApp(String phone) async {
     try {
-      String cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+      String cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
       if (cleanPhone.startsWith('0')) {
         cleanPhone = '62${cleanPhone.substring(1)}';
       }
-
-      // Untuk hotline darurat (129, 110, 118) gunakan dial telepon
+      // Untuk nomor darurat 129, 110, 118 -> telepon biasa
       if (cleanPhone == '129' || cleanPhone == '110' || cleanPhone == '118') {
-        final dialUri = Uri(scheme: 'tel', path: cleanPhone);
+        final dialUri = Uri(scheme: 'tel', path: phone);
         if (await canLaunchUrl(dialUri)) {
           await launchUrl(dialUri);
         } else {
@@ -141,19 +150,11 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
         }
         return;
       }
-
-      // Coba WhatsApp terlebih dahulu
       final whatsappUri = Uri.parse('https://wa.me/$cleanPhone');
       if (await canLaunchUrl(whatsappUri)) {
         await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
       } else {
-        // Fallback: coba telepon biasa
-        final dialUri = Uri(scheme: 'tel', path: phone);
-        if (await canLaunchUrl(dialUri)) {
-          await launchUrl(dialUri);
-        } else {
-          _showSnackBar('Tidak dapat membuka WhatsApp atau panggilan.');
-        }
+        _showSnackBar('Tidak dapat membuka WhatsApp.');
       }
     } catch (e) {
       _showSnackBar('Terjadi kesalahan: $e');
@@ -164,7 +165,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppTheme.primary,
+        backgroundColor: context.shevaColors.header,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -172,57 +173,54 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryLight,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         title: const Text(
           'SHEVA Map',
-          style: AppTheme.h2Medium,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: Column(
         children: [
-          // Filter
+          // 🔥 Filter Chip yang lebih kecil
           Container(
-            height: 60,
+            height: 50,
             padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: filters.map((filter) {
                 final isSelected = selectedFilter == filter;
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.spacingXxs),
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: InkWell(
                     onTap: () => setState(() => selectedFilter = filter),
-                    borderRadius: BorderRadius.circular(AppTheme.spacingLg),
-                    splashColor: Colors.white.withOpacity(0.1),
-                    highlightColor: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    splashColor: colors.text1.withOpacity(0.1),
+                    highlightColor: colors.text1.withOpacity(0.05),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.spacingMd,
-                        vertical: AppTheme.spacingXs,
+                        horizontal: 14,
+                        vertical: 6,
                       ),
                       decoration: ShapeDecoration(
-                        color: isSelected
-                            ? AppTheme.accentPurpleDark
-                            : AppTheme.surfaceCard2,
+                        color: isSelected ? colors.accentMid : colors.card,
                         shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: AppTheme.borderDefault),
-                          borderRadius:
-                              BorderRadius.circular(AppTheme.spacingLg),
+                          side: BorderSide(color: colors.border),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: Text(
                         filter,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
+                        style: TextStyle(
+                          color: colors.text1,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -232,7 +230,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
               }).toList(),
             ),
           ),
-          // List
+          // Daftar Layanan
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(
@@ -249,9 +247,13 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
           // Footer
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
-            child: const Text(
+            child: Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: AppTheme.tiny,
+              style: TextStyle(
+                color: colors.text3,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],
@@ -260,10 +262,15 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
   }
 
   Widget _buildServiceCard(Service service) {
+    final colors = context.shevaColors;
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
       padding: const EdgeInsets.all(AppTheme.spacingMd),
-      decoration: AppTheme.cardDecorationHeavy(),
+      decoration: BoxDecoration(
+        color: colors.cardWarm,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: colors.borderStrong),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -272,9 +279,9 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
               children: [
                 Text(
                   service.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
+                  style: TextStyle(
+                    color: colors.text1,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -282,30 +289,28 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
                 const SizedBox(height: AppTheme.spacingXxs),
                 Text(
                   '${service.address}\n${service.hours}',
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 14,
+                  style: TextStyle(
+                    color: colors.text2,
+                    fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
             ),
           ),
-          // 🔥 PERBAIKAN: Tombol Telepon dengan InkWell dan onTap
-          InkWell(
-            onTap: () => _whatsApp(service.phone),
-            borderRadius: BorderRadius.circular(25),
-            splashColor: Colors.white.withOpacity(0.2),
-            highlightColor: Colors.white.withOpacity(0.1),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.dangerBgSoft,
-              ),
-              child: const Icon(Icons.phone,
-                  color: Colors.white, size: AppTheme.iconLarge),
+          // Tombol WhatsApp / Telepon
+          IconButton(
+            onPressed: () => _whatsApp(service.whatsapp ?? service.phone),
+            icon: Icon(
+              Icons.phone,
+              color: colors.accent,
+              size: AppTheme.iconMain,
+            ),
+            splashRadius: 24,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 44,
+              minHeight: 44,
             ),
           ),
         ],
@@ -320,15 +325,16 @@ class Service {
   final String address;
   final String hours;
   final String phone;
+  final String? whatsapp;
   final bool isEmergency;
   final String mapUrl;
-
   Service({
     required this.name,
     required this.city,
     required this.address,
     required this.hours,
     required this.phone,
+    this.whatsapp,
     required this.isEmergency,
     required this.mapUrl,
   });

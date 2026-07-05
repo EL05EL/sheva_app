@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../app_theme.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
 
 class ShevaCirclePage extends StatefulWidget {
@@ -77,22 +78,13 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
     return communities.where((c) => c.city == selectedCity).toList();
   }
 
-  // 🔥 PERBAIKAN: Fungsi buka Google Maps dengan penanganan error
   Future<void> _openMap(String url) async {
     try {
       final Uri uri = Uri.parse(url);
-      // Cek apakah bisa dibuka
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        // Fallback: coba buka dengan browser
-        final browserUri = Uri.parse(url);
-        if (await canLaunchUrl(browserUri)) {
-          await launchUrl(browserUri, mode: LaunchMode.platformDefault);
-        } else {
-          _showSnackBar(
-              'Tidak dapat membuka peta. Silakan buka browser dan cari alamat ini.');
-        }
+        _showSnackBar('Tidak dapat membuka peta.');
       }
     } catch (e) {
       _showSnackBar('Gagal membuka peta: $e');
@@ -103,7 +95,7 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppTheme.primary,
+        backgroundColor: context.shevaColors.header,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -111,38 +103,39 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.shevaColors;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryLight,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.header,
+        foregroundColor: colors.text1,
         elevation: 0,
         title: const Text(
           'SHEVA Circle',
-          style: AppTheme.h2Medium,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: Column(
         children: [
-          // Filter Chip
+          // 🔥 Filter Chip yang lebih kecil
           Container(
-            height: 60,
+            height: 50,
             padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
                 _buildCityChip('Semua Kota'),
-                const SizedBox(width: AppTheme.spacingXs),
+                const SizedBox(width: 4),
                 _buildCityChip('Jakarta'),
-                const SizedBox(width: AppTheme.spacingXs),
+                const SizedBox(width: 4),
                 _buildCityChip('Surabaya'),
-                const SizedBox(width: AppTheme.spacingXs),
+                const SizedBox(width: 4),
                 _buildCityChip('Yogyakarta'),
-                const SizedBox(width: AppTheme.spacingXs),
+                const SizedBox(width: 4),
                 _buildCityChip('Semarang'),
-                const SizedBox(width: AppTheme.spacingXs),
+                const SizedBox(width: 4),
                 _buildCityChip('Online / Nasional'),
               ],
             ),
@@ -164,9 +157,13 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
           // Footer
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingMd),
-            child: const Text(
+            child: Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: AppTheme.tiny,
+              style: TextStyle(
+                color: colors.text3,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],
@@ -175,29 +172,30 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   }
 
   Widget _buildCityChip(String label) {
+    final colors = context.shevaColors;
     final isSelected = selectedCity == label;
     return InkWell(
       onTap: () => setState(() => selectedCity = label),
-      borderRadius: BorderRadius.circular(AppTheme.spacingLg),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      borderRadius: BorderRadius.circular(20),
+      splashColor: colors.text1.withOpacity(0.1),
+      highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.spacingMd,
-          vertical: AppTheme.spacingXs,
+          horizontal: 14,
+          vertical: 6,
         ),
         decoration: ShapeDecoration(
-          color: isSelected ? AppTheme.accentPurpleDark : AppTheme.surfaceCard2,
+          color: isSelected ? colors.accentMid : colors.card,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: AppTheme.borderDefault),
-            borderRadius: BorderRadius.circular(AppTheme.spacingLg),
+            side: BorderSide(color: colors.border),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
+          style: TextStyle(
+            color: colors.text1,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -206,10 +204,15 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
   }
 
   Widget _buildCommunityCard(Community community) {
+    final colors = context.shevaColors;
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
       padding: const EdgeInsets.all(AppTheme.spacingMd),
-      decoration: AppTheme.cardDecorationHeavy(),
+      decoration: BoxDecoration(
+        color: colors.cardWarm,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: colors.borderStrong),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -218,9 +221,9 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
               children: [
                 Text(
                   community.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
+                  style: TextStyle(
+                    color: colors.text1,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -228,30 +231,28 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
                 const SizedBox(height: AppTheme.spacingXxs),
                 Text(
                   community.address,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 14,
+                  style: TextStyle(
+                    color: colors.text2,
+                    fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
             ),
           ),
-          // 🔥 PERBAIKAN: Tombol Map dengan InkWell dan onTap
-          InkWell(
-            onTap: () => _openMap(community.mapUrl),
-            borderRadius: BorderRadius.circular(25),
-            splashColor: Colors.white.withOpacity(0.2),
-            highlightColor: Colors.white.withOpacity(0.1),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.dangerBgSoft,
-              ),
-              child: const Icon(Icons.location_on,
-                  color: Colors.white, size: AppTheme.iconLarge),
+          // Tombol Map
+          IconButton(
+            onPressed: () => _openMap(community.mapUrl),
+            icon: Icon(
+              Icons.location_on,
+              color: colors.accent,
+              size: AppTheme.iconMain,
+            ),
+            splashRadius: 24,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 44,
+              minHeight: 44,
             ),
           ),
         ],
@@ -265,7 +266,6 @@ class Community {
   final String city;
   final String address;
   final String mapUrl;
-
   Community({
     required this.name,
     required this.city,
