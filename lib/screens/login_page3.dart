@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
+import '../widgets/login_progress_indicator.dart';
 
 class LoginPage3 extends StatelessWidget {
   const LoginPage3({super.key});
@@ -19,21 +20,18 @@ class LoginPage3 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // LOGO
-                Container(
+                // 🔥 Indikator Progress (halaman 3 dari 3)
+                const LoginProgressIndicator(currentPage: 2),
+                const SizedBox(height: AppTheme.spacingLg),
+
+                // 🔥 LOGO PNG ukuran 148x148
+                Image.asset(
+                  'assets/images/logosheva.png',
                   width: 148,
                   height: 148,
-                  decoration: ShapeDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage('https://placehold.co/148x148'),
-                      fit: BoxFit.fill,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.spacingXxl),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
+
                 Text(
                   'SHEVA hadir dengan',
                   style: TextStyle(
@@ -54,37 +52,36 @@ class LoginPage3 extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
 
-                // 🔥 Fitur Perlindungan (Pure Icon, tanpa background bundar)
+                // 🔥 Fitur Perlindungan (icon tanpa background)
                 _buildFeatureItem(
                   colors,
                   'Perlindungan',
                   'SHEVA hadir sebagai pelindung - memberikan akses cepat ke bantuan darurat dan pelaporan',
                   Icons.shield,
-                  colors.iconProtection, // #F0637E
+                  colors.iconProtection,
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
 
-                // 🔥 Fitur Edukasi (Pure Icon, tanpa background bundar)
+                // 🔥 Fitur Edukasi
                 _buildFeatureItem(
                   colors,
                   'Edukasi',
                   'Pengetahuan adalah kekuatan. Pelajari hak-hak Anda dan bantu wujudkan kesetaraan',
                   Icons.book,
-                  colors.iconEdukasi, // #7C97F5
+                  colors.iconEdukasi,
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
 
-                // 🔥 Fitur Komunitas (Pure Icon, tanpa background bundar)
+                // 🔥 Fitur Komunitas
                 _buildFeatureItem(
                   colors,
                   'Komunitas',
                   'Bersama kita lebih kuat. Bergabunglah dengan gerakan For She, For He, For All.',
                   Icons.people,
-                  colors.iconKomunitas, // #6BDB93
+                  colors.iconKomunitas,
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
 
-                // Tagline
                 Text(
                   '"For She, For He, For All"',
                   style: TextStyle(
@@ -105,7 +102,6 @@ class LoginPage3 extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
 
-                // Tombol Mulai Perjalanan
                 SizedBox(
                   width: double.infinity,
                   height: 53,
@@ -150,7 +146,6 @@ class LoginPage3 extends StatelessWidget {
     );
   }
 
-  // 🔥 FUNGSI DIPERBAIKI: Hanya ikon tanpa background bundar
   Widget _buildFeatureItem(
     ShevaColors colors,
     String title,
@@ -168,11 +163,11 @@ class LoginPage3 extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 🔥 PERUBAHAN: Hanya Icon, tanpa Container lingkaran
+          // 🔥 Icon polos tanpa background
           Icon(
             icon,
-            color: iconColor, // warna solid sesuai PDF
-            size: AppTheme.iconLarge, // 32px
+            color: iconColor,
+            size: AppTheme.iconMain,
           ),
           const SizedBox(width: AppTheme.spacingSm),
           Expanded(

@@ -45,7 +45,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # TEMPAT UNTUK MENARUH FILE SVG DARI FIGMA (jika ada)
-  # assets:
-  #   - assets/icons/
-  #   - assets/images/
+  assets:
+    - assets/images/logosheva.png

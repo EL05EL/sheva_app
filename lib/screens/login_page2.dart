@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
+import '../widgets/login_progress_indicator.dart';
 
 class LoginPage2 extends StatefulWidget {
   const LoginPage2({super.key});
@@ -73,20 +74,18 @@ class _LoginPage2State extends State<LoginPage2> {
             ),
             child: Column(
               children: [
-                Container(
+                // 🔥 Indikator Progress (halaman 2 dari 3)
+                const LoginProgressIndicator(currentPage: 1),
+                const SizedBox(height: AppTheme.spacingLg),
+
+                // 🔥 LOGO PNG ukuran 148x148
+                Image.asset(
+                  'assets/images/logosheva.png',
                   width: 148,
                   height: 148,
-                  decoration: ShapeDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage('https://placehold.co/148x148'),
-                      fit: BoxFit.fill,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.spacingXxl),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
+
                 Text(
                   'Kenalkan diri Anda',
                   style: TextStyle(
@@ -106,6 +105,7 @@ class _LoginPage2State extends State<LoginPage2> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
+
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -139,6 +139,7 @@ class _LoginPage2State extends State<LoginPage2> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingLg),
+
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -163,6 +164,7 @@ class _LoginPage2State extends State<LoginPage2> {
                   ],
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
+
                 SizedBox(
                   width: double.infinity,
                   height: 53,

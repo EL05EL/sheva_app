@@ -39,18 +39,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            // 🔥 LOGO PNG (ukuran 120×120 untuk splash)
+            Image.asset(
+              'assets/images/logosheva.png',
               width: 120,
               height: 120,
-              decoration: ShapeDecoration(
-                image: const DecorationImage(
-                  image: NetworkImage('https://placehold.co/148x148'),
-                  fit: BoxFit.fill,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.spacingXxl),
-                ),
-              ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
             Text(

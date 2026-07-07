@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
+import '../widgets/login_progress_indicator.dart';
 
 class LoginPage1 extends StatelessWidget {
   const LoginPage1({super.key});
@@ -19,20 +20,18 @@ class LoginPage1 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Container(
+                // 🔥 Indikator Progress (halaman 1 dari 3)
+                const LoginProgressIndicator(currentPage: 0),
+                const SizedBox(height: AppTheme.spacingLg),
+
+                // 🔥 LOGO PNG ukuran 148x148
+                Image.asset(
+                  'assets/images/logosheva.png',
                   width: 148,
                   height: 148,
-                  decoration: ShapeDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage('https://placehold.co/148x148'),
-                      fit: BoxFit.fill,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.spacingXxl),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: AppTheme.spacingLg),
+
                 Text(
                   'Selamat Datang di',
                   style: TextStyle(
@@ -59,6 +58,7 @@ class LoginPage1 extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -68,6 +68,7 @@ class LoginPage1 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
+
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppTheme.spacingMd),
@@ -87,6 +88,7 @@ class LoginPage1 extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
+
                 SizedBox(
                   width: double.infinity,
                   height: 53,
