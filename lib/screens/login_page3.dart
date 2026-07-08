@@ -20,18 +20,14 @@ class LoginPage3 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // 🔥 Indikator Progress (halaman 3 dari 3)
                 const LoginProgressIndicator(currentPage: 2),
                 const SizedBox(height: AppTheme.spacingLg),
-
-                // 🔥 LOGO PNG ukuran 148x148
                 Image.asset(
                   'assets/images/logosheva.png',
                   width: 148,
                   height: 148,
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
-
                 Text(
                   'SHEVA hadir dengan',
                   style: TextStyle(
@@ -51,8 +47,6 @@ class LoginPage3 extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-
-                // 🔥 Fitur Perlindungan (icon tanpa background)
                 _buildFeatureItem(
                   colors,
                   'Perlindungan',
@@ -61,8 +55,6 @@ class LoginPage3 extends StatelessWidget {
                   colors.iconProtection,
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
-
-                // 🔥 Fitur Edukasi
                 _buildFeatureItem(
                   colors,
                   'Edukasi',
@@ -71,8 +63,6 @@ class LoginPage3 extends StatelessWidget {
                   colors.iconEdukasi,
                 ),
                 const SizedBox(height: AppTheme.spacingMd),
-
-                // 🔥 Fitur Komunitas
                 _buildFeatureItem(
                   colors,
                   'Komunitas',
@@ -81,7 +71,6 @@ class LoginPage3 extends StatelessWidget {
                   colors.iconKomunitas,
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-
                 Text(
                   '"For She, For He, For All"',
                   style: TextStyle(
@@ -101,7 +90,6 @@ class LoginPage3 extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
-
                 SizedBox(
                   width: double.infinity,
                   height: 53,
@@ -163,7 +151,6 @@ class LoginPage3 extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 🔥 Icon polos tanpa background
           Icon(
             icon,
             color: iconColor,

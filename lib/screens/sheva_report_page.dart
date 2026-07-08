@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import '../providers/user_provider.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
@@ -39,14 +42,14 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
   ];
 
   // ============================================================
-  // 🔥 DAFTAR HOTLINE DENGAN NOMOR WHATSAPP VALID
+  // 🔥 HOTLINE DENGAN NOMOR WHATSAPP ASLI (SUDAH DIVERIFIKASI)
   // ============================================================
   final List<Hotline> _hotlines = [
     Hotline(
       name: 'SAPA 129',
       phone: '129',
       whatsapp: '08111129129',
-      description: 'Hotline Nasional 24 jam untuk korban kekerasan',
+      description: 'Hotline Nasional 24 jam KemenPPPA',
     ),
     Hotline(
       name: 'Komnas Perempuan',
@@ -64,18 +67,20 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
       name: 'Yayasan Pulih',
       phone: '02178842580',
       whatsapp: '08118436633',
-      description: 'Layanan konseling dan pemulihan trauma',
+      description: 'Konseling psikologis & pemulihan trauma',
     ),
     Hotline(
-      name: 'CS SHEVA - Fadil',
-      phone: '081243265263',
-      whatsapp: '081243265263',
-      description: 'Customer Service SHEVA (24 jam)',
+      name: 'SEJIWA',
+      phone: '119',
+      whatsapp: '081380073120',
+      description: 'Layanan kesehatan jiwa & pencegahan bunuh diri',
     ),
   ];
 
+  final SupabaseService _supabase = SupabaseService();
+
   // ============================================================
-  // 🔥 FUNGSI KIRIM KE WHATSAPP
+  // FUNGSI KIRIM KE WHATSAPP
   // ============================================================
   Future<void> _sendToWhatsApp(String phone, String message) async {
     try {
@@ -83,8 +88,8 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
       if (cleanPhone.startsWith('0')) {
         cleanPhone = '62${cleanPhone.substring(1)}';
       }
-      final encodedMessage = Uri.encodeComponent(message);
-      final url = 'https://wa.me/$cleanPhone?text=$encodedMessage';
+      final url =
+          'https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}';
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -96,12 +101,39 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
     }
   }
 
+  // ============================================================
+  // SIMPAN LAPORAN KE SUPABASE
+  // ============================================================
+  Future<void> _sendReportToSupabase(String message) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userId;
+    if (userId == null) {
+      _showSnackBar('User ID tidak ditemukan, laporan tidak tersimpan.');
+      return;
+    }
+    try {
+      await _supabase.createReport({
+        'user_id': userId,
+        'type': _selectedReportType,
+        'location': _selectedLocation ?? 'Tidak disebutkan',
+        'description': message,
+        'is_anonymous': _isAnonym,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+      _showSnackBar('✅ Laporan berhasil disimpan di server.');
+    } catch (e) {
+      _showSnackBar('⚠️ Gagal menyimpan laporan: $e');
+    }
+  }
+
+  // ============================================================
+  // KIRIM LAPORAN KE WHATSAPP + SUPABASE
+  // ============================================================
   Future<void> _sendReportToWhatsApp(Hotline hotline) async {
     if (_selectedReportType == null) {
       _showSnackBar('Silakan pilih jenis laporan terlebih dahulu.');
       return;
     }
-
     if (_isLoading) return;
     setState(() => _isLoading = true);
 
@@ -125,7 +157,12 @@ For She, For He, For All.
 ''';
 
     setState(() => _isLoading = false);
+
+    // Kirim ke WhatsApp
     await _sendToWhatsApp(hotline.whatsapp ?? hotline.phone, message);
+
+    // Simpan ke Supabase
+    await _sendReportToSupabase(message);
   }
 
   void _showSnackBar(String message) {
@@ -133,13 +170,13 @@ For She, For He, For All.
       SnackBar(
         content: Text(message),
         backgroundColor: context.shevaColors.header,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
 
   // ============================================================
-  // 🔥 BUILD
+  // BUILD
   // ============================================================
   @override
   Widget build(BuildContext context) {
@@ -459,7 +496,7 @@ For She, For He, For All.
 }
 
 // ============================================================
-// 🔥 MODEL HOTLINE (DENGAN WHATSAPP)
+// MODEL HOTLINE
 // ============================================================
 class Hotline {
   final String name;

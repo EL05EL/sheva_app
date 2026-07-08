@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:sheva_app/providers/user_provider.dart';
-import 'theme/app_theme.dart';
-import 'theme/theme_extension.dart';
 import 'providers/settings_provider.dart';
+import 'providers/user_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_page1.dart';
@@ -18,8 +18,21 @@ import 'screens/sheva_learn_page.dart';
 import 'screens/sheva_profile_page.dart';
 import 'screens/sheva_setting_page.dart';
 import 'screens/sheva_privacy_page.dart';
+import 'theme/app_theme.dart';
+import 'theme/theme_extension.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -39,19 +52,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
-
-    // Ambil warna yang sesuai
     final colors = isDark ? _darkColors : _lightColors;
 
     return MaterialApp(
       title: 'SHEVA',
       theme: isDark ? AppTheme.darkTheme(colors) : AppTheme.lightTheme(colors),
-      themeMode: ThemeMode
-          .system, // biar mengikuti sistem, tapi kita override dengan provider
-      // kita paksa pakai tema dari provider
-      // untuk itu kita set theme dan darkTheme, dan themeMode = ThemeMode.dark/light
-      // tapi lebih mudah kita set theme langsung
-      // Karena kita sudah menentukan, kita pakai builder untuk override
+      themeMode: ThemeMode.system,
       initialRoute: '/splash',
       routes: {
         '/splash': (context) => const SplashScreen(),
@@ -69,7 +75,6 @@ class MyApp extends StatelessWidget {
         '/privacy': (context) => const ShevaPrivacyPage(),
       },
       builder: (context, child) {
-        // Agar perubahan ukuran teks tetap jalan
         final settingsProvider = Provider.of<SettingsProvider>(context);
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -82,7 +87,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ---- Definisi warna sesuai PDF ----
+// ---- Dark Mode Colors ----
 const _darkColors = ShevaColors(
   bgDeep: Color(0xFF18071F),
   bgWarm: Color(0xFF290D36),
@@ -114,16 +119,11 @@ const _darkColors = ShevaColors(
   blue: Color(0xFF1E2A50),
   magenta: Color(0xFF5C1D52),
   green: Color(0xFF1F6B3B),
-  accentGrad:
-      const LinearGradient(colors: [Color(0xFF9370E8), Color(0xFF6A3FC4)]),
-  dangerGrad:
-      const LinearGradient(colors: [Color(0xFFC23350), Color(0xFF7A0A22)]),
-  blueGrad:
-      const LinearGradient(colors: [Color(0xFF3E56A0), Color(0xFF1E2A50)]),
-  magentaGrad:
-      const LinearGradient(colors: [Color(0xFFC23E8E), Color(0xFF7A2560)]),
-  greenGrad:
-      const LinearGradient(colors: [Color(0xFF34A860), Color(0xFF1B6B3A)]),
+  accentGrad: LinearGradient(colors: [Color(0xFF9370E8), Color(0xFF6A3FC4)]),
+  dangerGrad: LinearGradient(colors: [Color(0xFFC23350), Color(0xFF7A0A22)]),
+  blueGrad: LinearGradient(colors: [Color(0xFF3E56A0), Color(0xFF1E2A50)]),
+  magentaGrad: LinearGradient(colors: [Color(0xFFC23E8E), Color(0xFF7A2560)]),
+  greenGrad: LinearGradient(colors: [Color(0xFF34A860), Color(0xFF1B6B3A)]),
   iconProtection: Color(0xFFF0637E),
   iconEdukasi: Color(0xFF7C97F5),
   iconKomunitas: Color(0xFF6BDB93),
@@ -132,18 +132,19 @@ const _darkColors = ShevaColors(
   bioToggle: Color(0xFF4FD3B0),
 );
 
+// ---- Light Mode Colors ----
 const _lightColors = ShevaColors(
   bgDeep: Color(0xFFF3F0FA),
   bgWarm: Color(0xFFFFFFFF),
   card: Color(0xFFFFFFFF),
   cardWarm: Color(0xFFEFE9FB),
-  cardSoft: Color(0xFFF3F0FA), // tidak ada di light, kita pakai bgDeep
+  cardSoft: Color(0xFFF3F0FA),
   header: Color(0xFF6D4AAE),
   accent: Color(0xFF9B8BE4),
   accent2: Color(0xFF7C5CD6),
   accentMid: Color(0xFF4E2B7B),
   accentDeep: Color(0xFF331858),
-  border: Color(0xFFAEA3C9), // kurang lebih
+  border: Color(0xFFAEA3C9),
   borderStrong: Color(0xFF5B4C7A),
   text1: Color(0xFF241536),
   text2: Color(0xFF5B4C7A),
@@ -163,16 +164,11 @@ const _lightColors = ShevaColors(
   blue: Color(0xFF1E2A50),
   magenta: Color(0xFF5C1D52),
   green: Color(0xFF1F6B3B),
-  accentGrad:
-      const LinearGradient(colors: [Color(0xFF9370E8), Color(0xFF6A3FC4)]),
-  dangerGrad:
-      const LinearGradient(colors: [Color(0xFFC23350), Color(0xFF7A0A22)]),
-  blueGrad:
-      const LinearGradient(colors: [Color(0xFF3E56A0), Color(0xFF1E2A50)]),
-  magentaGrad:
-      const LinearGradient(colors: [Color(0xFFC23E8E), Color(0xFF7A2560)]),
-  greenGrad:
-      const LinearGradient(colors: [Color(0xFF34A860), Color(0xFF1B6B3A)]),
+  accentGrad: LinearGradient(colors: [Color(0xFF9370E8), Color(0xFF6A3FC4)]),
+  dangerGrad: LinearGradient(colors: [Color(0xFFC23350), Color(0xFF7A0A22)]),
+  blueGrad: LinearGradient(colors: [Color(0xFF3E56A0), Color(0xFF1E2A50)]),
+  magentaGrad: LinearGradient(colors: [Color(0xFFC23E8E), Color(0xFF7A2560)]),
+  greenGrad: LinearGradient(colors: [Color(0xFF34A860), Color(0xFF1B6B3A)]),
   iconProtection: Color(0xFFF0637E),
   iconEdukasi: Color(0xFF7C97F5),
   iconKomunitas: Color(0xFF6BDB93),

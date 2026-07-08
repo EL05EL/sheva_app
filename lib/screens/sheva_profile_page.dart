@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sheva_app/providers/user_provider.dart';
+import '../providers/user_provider.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
@@ -129,7 +129,6 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Gender',
-                // 🔥 PERBAIKAN: Gunakan colors.text1 (berubah otomatis di light/dark)
                 style: TextStyle(
                   color: colors.text1,
                   fontSize: 16,
@@ -150,7 +149,6 @@ class _ShevaProfilePageState extends State<ShevaProfilePage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Pengaturan & Lainnya',
-                // 🔥 PERBAIKAN: Gunakan colors.text1
                 style: TextStyle(
                   color: colors.text1,
                   fontSize: 16,

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sheva_app/providers/user_provider.dart';
+import '../providers/user_provider.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
 import '../providers/theme_provider.dart';
@@ -250,9 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: AppTheme.spacingMd),
 
-              // ============================================================
-              // 🔥 SHEVA SHIELD - Gaya konsisten dengan grid card (merah)
-              // ============================================================
+              // SHEVA SHIELD
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
@@ -268,20 +266,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       horizontal: AppTheme.spacingMd,
                     ),
                     decoration: ShapeDecoration(
-                      // 🔥 Gunakan warna merah dengan opasitas 0.85 (sama seperti grid card)
                       color: colors.sosRed.withOpacity(0.85),
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
                           width: 1,
-                          color: colors.text1
-                              .withOpacity(0.2), // border putih tipis
+                          color: colors.text1.withOpacity(0.2),
                         ),
                         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                     ),
                     child: Row(
                       children: [
-                        // Lingkaran ikon dengan background putih transparan
                         Container(
                           width: 48,
                           height: 48,
@@ -331,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: AppTheme.spacingMd),
 
-              // Grid Menu dengan Ikon sesuai PDF
+              // Grid Menu
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),

@@ -119,25 +119,30 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
       ),
       body: Column(
         children: [
-          // 🔥 Filter Chip yang lebih kecil
-          Container(
-            height: 50,
-            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                _buildCityChip('Semua Kota'),
-                const SizedBox(width: 4),
-                _buildCityChip('Jakarta'),
-                const SizedBox(width: 4),
-                _buildCityChip('Surabaya'),
-                const SizedBox(width: 4),
-                _buildCityChip('Yogyakarta'),
-                const SizedBox(width: 4),
-                _buildCityChip('Semarang'),
-                const SizedBox(width: 4),
-                _buildCityChip('Online / Nasional'),
-              ],
+          // 🔥 CHIP FILTER – RAPI seperti SHEVA Learn
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingMd,
+              vertical: AppTheme.spacingSm,
+            ),
+            child: SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _buildCityChip('Semua Kota'),
+                  const SizedBox(width: 8),
+                  _buildCityChip('Jakarta'),
+                  const SizedBox(width: 8),
+                  _buildCityChip('Surabaya'),
+                  const SizedBox(width: 8),
+                  _buildCityChip('Yogyakarta'),
+                  const SizedBox(width: 8),
+                  _buildCityChip('Semarang'),
+                  const SizedBox(width: 8),
+                  _buildCityChip('Online / Nasional'),
+                ],
+              ),
             ),
           ),
           // Daftar Komunitas
@@ -240,7 +245,6 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
               ],
             ),
           ),
-          // Tombol Map
           IconButton(
             onPressed: () => _openMap(community.mapUrl),
             icon: Icon(

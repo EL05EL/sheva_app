@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
 
@@ -11,16 +12,30 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final SupabaseService _supabase = SupabaseService();
+
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    _initializeApp();
   }
 
-  Future<void> _checkLoginStatus() async {
+  Future<void> _initializeApp() async {
+    // Tunggu sebentar biar splash terlihat
     await Future.delayed(const Duration(milliseconds: 800));
+
+    // Coba buat/baca user anonim di Supabase
+    try {
+      await _supabase.getOrCreateUserId();
+    } catch (e) {
+      // Gagal koneksi ke Supabase, tetap lanjut pakai lokal
+      debugPrint('Supabase error: $e');
+    }
+
+    // Cek apakah user sudah punya nama (sudah login sebelumnya)
     final prefs = await SharedPreferences.getInstance();
     final userName = prefs.getString('userName');
+
     if (mounted) {
       if (userName != null && userName.isNotEmpty) {
         Navigator.pushReplacementNamed(context, '/home');
@@ -39,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🔥 LOGO PNG (ukuran 120×120 untuk splash)
             Image.asset(
               'assets/images/logosheva.png',
               width: 120,

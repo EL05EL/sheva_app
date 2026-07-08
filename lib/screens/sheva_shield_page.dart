@@ -246,6 +246,7 @@ For She, For He, For All.
 
     setState(() => _isLoading = false);
 
+    // 🔥 Hotline dengan nomor WhatsApp asli (sudah diverifikasi)
     showModalBottomSheet(
       context: context,
       backgroundColor: context.shevaColors.bgDeep,
@@ -267,15 +268,15 @@ For She, For He, For All.
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            _buildHotlineOption('SAPA 129', '129', message),
+            _buildHotlineOption('SAPA 129', '08111129129', message),
             Divider(color: context.shevaColors.border),
             _buildHotlineOption('Polisi 110', '110', message),
             Divider(color: context.shevaColors.border),
             _buildHotlineOption('Ambulance 118', '118', message),
             Divider(color: context.shevaColors.border),
-            _buildHotlineOption('Komnas Perempuan', '(021) 3903963', message),
+            _buildHotlineOption('Komnas Perempuan', '08179323375', message),
             Divider(color: context.shevaColors.border),
-            _buildHotlineOption('CS SHEVA - Fadil', '081243265263', message),
+            _buildHotlineOption('SEJIWA', '081380073120', message),
             const SizedBox(height: AppTheme.spacingMd),
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -549,24 +550,21 @@ For She, For He, For All.
             ),
             const SizedBox(height: AppTheme.spacingXl),
 
-            // ============================================================
-            // 🔥 LAYANAN DARURAT - Posisi seimbang dengan Row dan Expanded
-            // ============================================================
+            // Layanan Darurat
             Text('Layanan Darurat',
                 style: TextStyle(
                     color: colors.text1,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: AppTheme.spacingSm),
-            // Gunakan Row dengan 4 card yang sama lebarnya
             Row(
               children: [
                 Expanded(
                   child: _buildEmergencyCard(
                     'SAPA 129',
                     'Hotline Nasional 24 jam',
-                    '129',
-                    colors.sosRed, // merah
+                    '08111129129',
+                    colors.sosRed,
                   ),
                 ),
                 const SizedBox(width: AppTheme.spacingSm),
@@ -575,7 +573,7 @@ For She, For He, For All.
                     'Polisi 110',
                     'Layanan Darurat',
                     '110',
-                    colors.blue, // 🔥 BIRU
+                    colors.blue,
                   ),
                 ),
               ],
@@ -588,16 +586,38 @@ For She, For He, For All.
                     'Ambulance 118',
                     'Unit Gawat Darurat',
                     '118',
-                    colors.green, // hijau
+                    colors.green,
                   ),
                 ),
                 const SizedBox(width: AppTheme.spacingSm),
                 Expanded(
                   child: _buildEmergencyCard(
-                    'Into The Light',
-                    'Krisis Mental 24 jam',
-                    '189',
-                    colors.iconProtection, // pink
+                    'Komnas Perempuan',
+                    'Anti Kekerasan',
+                    '08179323375',
+                    colors.iconProtection,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spacingSm),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildEmergencyCard(
+                    'SEJIWA',
+                    'Kesehatan Jiwa',
+                    '081380073120',
+                    colors.accent2,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacingSm),
+                Expanded(
+                  child: _buildEmergencyCard(
+                    'LBH APIK',
+                    'Bantuan Hukum',
+                    '08138882669',
+                    colors.magenta,
                   ),
                 ),
               ],
@@ -665,7 +685,6 @@ For She, For He, For All.
     );
   }
 
-  // 🔥 WIDGET CARD LAYANAN DARURAT - Ukuran seragam
   Widget _buildEmergencyCard(
       String title, String subtitle, String phoneNumber, Color cardColor) {
     final colors = context.shevaColors;

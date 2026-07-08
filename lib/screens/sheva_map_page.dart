@@ -27,27 +27,6 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
           'https://www.google.com/maps/search/?api=1&query=SAPA+129+Indonesia',
     ),
     Service(
-      name: 'Into The Light IDN',
-      city: 'Jakarta',
-      address: 'Jakarta',
-      hours: '24 Jam',
-      phone: '08123456789',
-      whatsapp: '0811114537',
-      isEmergency: true,
-      mapUrl:
-          'https://www.google.com/maps/search/?api=1&query=Into+The+Light+IDN+Jakarta',
-    ),
-    Service(
-      name: 'SAFEnet',
-      city: 'Jakarta',
-      address: 'Jakarta',
-      hours: 'Senin-Jumat, 09.00-17.00',
-      phone: '08123456788',
-      whatsapp: '08179323375',
-      isEmergency: false,
-      mapUrl: 'https://www.google.com/maps/search/?api=1&query=SAFEnet+Jakarta',
-    ),
-    Service(
       name: 'Komnas Perempuan',
       city: 'Jakarta Pusat',
       address: 'Jakarta Pusat',
@@ -79,6 +58,17 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       isEmergency: false,
       mapUrl:
           'https://www.google.com/maps/search/?api=1&query=Yayasan+Pulih+Jakarta',
+    ),
+    Service(
+      name: 'SEJIWA',
+      city: 'Seluruh Indonesia',
+      address: 'Layanan Kesehatan Jiwa',
+      hours: '24 Jam',
+      phone: '119',
+      whatsapp: '081380073120',
+      isEmergency: true,
+      mapUrl:
+          'https://www.google.com/maps/search/?api=1&query=SEJIWA+Indonesia',
     ),
     Service(
       name: 'Rifka Annisa WCC',
@@ -140,7 +130,6 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       if (cleanPhone.startsWith('0')) {
         cleanPhone = '62${cleanPhone.substring(1)}';
       }
-      // Untuk nomor darurat 129, 110, 118 -> telepon biasa
       if (cleanPhone == '129' || cleanPhone == '110' || cleanPhone == '118') {
         final dialUri = Uri(scheme: 'tel', path: phone);
         if (await canLaunchUrl(dialUri)) {
@@ -189,45 +178,50 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
       ),
       body: Column(
         children: [
-          // 🔥 Filter Chip yang lebih kecil
-          Container(
-            height: 50,
-            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: filters.map((filter) {
-                final isSelected = selectedFilter == filter;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: InkWell(
-                    onTap: () => setState(() => selectedFilter = filter),
-                    borderRadius: BorderRadius.circular(20),
-                    splashColor: colors.text1.withOpacity(0.1),
-                    highlightColor: colors.text1.withOpacity(0.05),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      decoration: ShapeDecoration(
-                        color: isSelected ? colors.accentMid : colors.card,
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(color: colors.border),
-                          borderRadius: BorderRadius.circular(20),
+          // 🔥 CHIP FILTER – RAPI seperti SHEVA Learn
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingMd,
+              vertical: AppTheme.spacingSm,
+            ),
+            child: SizedBox(
+              height: 40, // tinggi konsisten
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: filters.map((filter) {
+                  final isSelected = selectedFilter == filter;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      onTap: () => setState(() => selectedFilter = filter),
+                      borderRadius: BorderRadius.circular(20),
+                      splashColor: colors.text1.withOpacity(0.1),
+                      highlightColor: colors.text1.withOpacity(0.05),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
                         ),
-                      ),
-                      child: Text(
-                        filter,
-                        style: TextStyle(
-                          color: colors.text1,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                        decoration: ShapeDecoration(
+                          color: isSelected ? colors.accentMid : colors.card,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(color: colors.border),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Text(
+                          filter,
+                          style: TextStyle(
+                            color: colors.text1,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
           // Daftar Layanan
@@ -298,7 +292,6 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
               ],
             ),
           ),
-          // Tombol WhatsApp / Telepon
           IconButton(
             onPressed: () => _whatsApp(service.whatsapp ?? service.phone),
             icon: Icon(

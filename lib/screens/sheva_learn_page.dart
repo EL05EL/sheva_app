@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
 import '../widgets/sos_button.dart';
@@ -16,6 +17,7 @@ class _ShevaLearnPageState extends State<ShevaLearnPage> {
   int _selectedTab = 0;
   List<Module> _modules = [];
   List<int> _savedModuleIds = [];
+  final SupabaseService _supabase = SupabaseService();
 
   @override
   void initState() {
@@ -201,16 +203,45 @@ Kesetaraan gender dalam ketenagakerjaan berarti kesempatan sama untuk pekerjaan 
     ];
   }
 
+  // ============================================================
+  // LOAD SAVED MODULES (Lokal + Supabase)
+  // ============================================================
   Future<void> _loadSavedModules() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedList = prefs.getStringList('savedModules') ?? [];
+    final userId = prefs.getString('supabase_user_id');
+    List<int> localSaved = [];
+
+    if (userId != null) {
+      try {
+        // Ambil dari Supabase
+        final remote = await _supabase.getSavedModuleIds(userId);
+        localSaved = remote;
+        // Simpan ke lokal
+        await prefs.setStringList(
+            'savedModules', localSaved.map((id) => id.toString()).toList());
+      } catch (_) {
+        // Fallback ke lokal
+        final savedList = prefs.getStringList('savedModules') ?? [];
+        localSaved = savedList.map((id) => int.parse(id)).toList();
+      }
+    } else {
+      final savedList = prefs.getStringList('savedModules') ?? [];
+      localSaved = savedList.map((id) => int.parse(id)).toList();
+    }
+
     setState(() {
-      _savedModuleIds = savedList.map((id) => int.parse(id)).toList();
+      _savedModuleIds = localSaved;
     });
   }
 
+  // ============================================================
+  // TOGGLE SAVE MODULE (Lokal + Supabase)
+  // ============================================================
   Future<void> _toggleSaveModule(int moduleId) async {
     final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('supabase_user_id');
+
+    // Update state
     setState(() {
       if (_savedModuleIds.contains(moduleId)) {
         _savedModuleIds.remove(moduleId);
@@ -218,12 +249,26 @@ Kesetaraan gender dalam ketenagakerjaan berarti kesempatan sama untuk pekerjaan 
         _savedModuleIds.add(moduleId);
       }
     });
+
+    // Simpan ke lokal
     await prefs.setStringList(
-      'savedModules',
-      _savedModuleIds.map((id) => id.toString()).toList(),
-    );
+        'savedModules', _savedModuleIds.map((id) => id.toString()).toList());
+
+    // Sync ke Supabase
+    if (userId != null) {
+      try {
+        await _supabase.toggleSavedModule(
+          userId: userId,
+          moduleId: moduleId,
+          isSaved: _savedModuleIds.contains(moduleId),
+        );
+      } catch (_) {}
+    }
   }
 
+  // ============================================================
+  // SHARE MODULE
+  // ============================================================
   Future<void> _shareModule(Module module) async {
     final shareText = '''
 ${module.title}
@@ -238,6 +283,9 @@ For She, For He, For All.
     await Share.share(shareText);
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
   @override
   Widget build(BuildContext context) {
     final colors = context.shevaColors;
@@ -260,6 +308,7 @@ For She, For He, For All.
       ),
       body: Column(
         children: [
+          // Search Bar (statis, untuk UI)
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppTheme.spacingMd,
@@ -290,6 +339,7 @@ For She, For He, For All.
               ),
             ),
           ),
+          // Tab Buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
             child: Row(
@@ -300,6 +350,7 @@ For She, For He, For All.
               ],
             ),
           ),
+          // List Modules
           Expanded(
             child: displayModules.isEmpty
                 ? Center(
@@ -316,6 +367,7 @@ For She, For He, For All.
                     },
                   ),
           ),
+          // Footer
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
             child: Text(
@@ -510,6 +562,9 @@ For She, For He, For All.
   }
 }
 
+// ============================================================
+// MODEL MODULE
+// ============================================================
 class Module {
   final int id;
   final String title;
@@ -525,6 +580,9 @@ class Module {
   });
 }
 
+// ============================================================
+// MODULE DETAIL PAGE
+// ============================================================
 class ModuleDetailPage extends StatelessWidget {
   final Module module;
   final bool isSaved;
@@ -666,7 +724,6 @@ class ModuleDetailPage extends StatelessWidget {
     );
   }
 
-  // 🔥 PERBAIKAN: tambahkan parameter BuildContext
   List<Widget> _buildContentParagraphs(BuildContext context, String content) {
     final colors = context.shevaColors;
     final lines = content.split('\n');

@@ -20,18 +20,14 @@ class LoginPage1 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // 🔥 Indikator Progress (halaman 1 dari 3)
                 const LoginProgressIndicator(currentPage: 0),
                 const SizedBox(height: AppTheme.spacingLg),
-
-                // 🔥 LOGO PNG ukuran 148x148
                 Image.asset(
                   'assets/images/logosheva.png',
                   width: 148,
                   height: 148,
                 ),
                 const SizedBox(height: AppTheme.spacingLg),
-
                 Text(
                   'Selamat Datang di',
                   style: TextStyle(
@@ -58,7 +54,6 @@ class LoginPage1 extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -68,7 +63,6 @@ class LoginPage1 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppTheme.spacingXl),
-
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppTheme.spacingMd),
@@ -88,7 +82,6 @@ class LoginPage1 extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXxl),
-
                 SizedBox(
                   width: double.infinity,
                   height: 53,
