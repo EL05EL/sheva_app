@@ -5,22 +5,53 @@ import '../theme/theme_extension.dart';
 class MenuGridCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Color color;
+  final Color color; // fallback
+  final Gradient? gradient; // prioritas
   final String route;
-  final IconData icon; // 🔥 TAMBAHKAN parameter icon
+  final IconData icon;
 
   const MenuGridCard({
     super.key,
     required this.title,
     required this.subtitle,
     required this.color,
+    this.gradient,
     required this.route,
-    required this.icon, // 🔥 WAJIB diisi
+    required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.shevaColors;
+
+    final Decoration decoration;
+    if (gradient != null) {
+      decoration = BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(
+          color: colors.text1.withOpacity(0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (gradient! as LinearGradient).colors.first.withOpacity(0.5),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
+    } else {
+      decoration = BoxDecoration(
+        color: color.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(
+          color: colors.text1.withOpacity(0.2),
+          width: 1,
+        ),
+      );
+    }
+
     return InkWell(
       onTap: () => Navigator.pushNamed(context, route),
       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
@@ -28,21 +59,10 @@ class MenuGridCard extends StatelessWidget {
       highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.all(AppTheme.spacingSm),
-        decoration: ShapeDecoration(
-          // 🔥 PERBAIKAN: Kurangi transparansi (dari 0.5 jadi 0.85 agar lebih solid)
-          color: color.withOpacity(0.85),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              width: 1,
-              color: colors.text1.withOpacity(0.2),
-            ),
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          ),
-        ),
+        decoration: decoration,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🔥 TAMBAHKAN IKON di atas teks
             Icon(
               icon,
               color: colors.text1,

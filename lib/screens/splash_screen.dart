@@ -21,18 +21,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Tunggu sebentar biar splash terlihat
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // Coba buat/baca user anonim di Supabase
+    // 🔥 Coba buat user anonim, tapi TETAP LANJUTKAN walaupun gagal
     try {
       await _supabase.getOrCreateUserId();
     } catch (e) {
-      // Gagal koneksi ke Supabase, tetap lanjut pakai lokal
-      debugPrint('Supabase error: $e');
+      debugPrint('⚠️ Supabase error (offline): $e');
+      // Tetap lanjut ke halaman berikutnya
     }
 
-    // Cek apakah user sudah punya nama (sudah login sebelumnya)
     final prefs = await SharedPreferences.getInstance();
     final userName = prefs.getString('userName');
 

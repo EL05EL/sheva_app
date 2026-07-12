@@ -71,6 +71,72 @@ class _HomeScreenState extends State<HomeScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final colors = context.shevaColors;
 
+    // 🔥 Deteksi mode terang/gelap
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // ============================================================
+    // 🔥 GRADIENT REPORT – BIRU TUA
+    // ============================================================
+    final gradientReport = isDarkMode
+        ? const LinearGradient(
+            colors: [Color(0xFF3B82C4), Color(0xFF1A4A7A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : const LinearGradient(
+            colors: [Color(0xFF5A9BD4), Color(0xFF2D6B9E)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+
+    // ============================================================
+    // 🔥 GRADIENT LEARN – KUNING (baru)
+    // ============================================================
+    final gradientLearn = isDarkMode
+        ? const LinearGradient(
+            colors: [
+              Color(0xFFF59E0B),
+              Color(0xFFB45309)
+            ], // kuning keemasan gelap
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : const LinearGradient(
+            colors: [Color(0xFFFBBF24), Color(0xFFD97706)], // kuning cerah
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+
+    // ============================================================
+    // 🔥 GRADIENT MAP – MAGENTA CERAH
+    // ============================================================
+    final gradientMap = isDarkMode
+        ? const LinearGradient(
+            colors: [Color(0xFFB84A8A), Color(0xFF7A2A5A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : const LinearGradient(
+            colors: [Color(0xFFD96AAE), Color(0xFF9A4A7A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+
+    // ============================================================
+    // 🔥 GRADIENT CIRCLE – UNGU CERAH
+    // ============================================================
+    final gradientCircle = isDarkMode
+        ? const LinearGradient(
+            colors: [Color(0xFF7A5AAE), Color(0xFF4A2A7A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : const LinearGradient(
+            colors: [Color(0xFF9A7AC8), Color(0xFF6A4A9A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+
     return Scaffold(
       backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
@@ -147,7 +213,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    // Toggle Light/Dark
                     IconButton(
                       icon: Icon(
                         themeProvider.isDarkMode
@@ -165,7 +230,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         minHeight: AppTheme.touchTarget,
                       ),
                     ),
-                    // Popup Menu
                     PopupMenuButton<String>(
                       icon: Icon(Icons.more_vert,
                           color: colors.text1, size: AppTheme.iconMain),
@@ -196,9 +260,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingMd),
+
               // Carousel Statistik
               SizedBox(
-                height: 100,
+                height: 120,
                 child: Stack(
                   children: [
                     PageView.builder(
@@ -221,7 +286,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
-                    // Indikator dot
                     Positioned(
                       bottom: AppTheme.spacingXxs,
                       left: 0,
@@ -250,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: AppTheme.spacingMd),
 
-              // SHEVA SHIELD
+              // Banner SHEVA Shield
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
@@ -266,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       horizontal: AppTheme.spacingMd,
                     ),
                     decoration: ShapeDecoration(
-                      color: colors.sosRed.withOpacity(0.85),
+                      gradient: colors.dangerGrad,
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
                           width: 1,
@@ -326,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: AppTheme.spacingMd),
 
-              // Grid Menu
+              // 🔥 GRID MENU – LEARN SEKARANG KUNING
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
@@ -337,32 +401,48 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisSpacing: AppTheme.spacingSm,
                   mainAxisSpacing: AppTheme.spacingSm,
                   childAspectRatio: 1.2,
-                  children: const [
+                  children: [
+                    // REPORT – BIRU TUA
                     MenuGridCard(
                       title: 'SHEVA Report',
                       subtitle: 'Laporan anonim KBG/O',
-                      color: Color(0xFF5139BE),
+                      color: isDarkMode
+                          ? const Color(0xFF3B82C4)
+                          : const Color(0xFF5A9BD4),
+                      gradient: gradientReport,
                       route: '/report',
                       icon: Icons.description,
                     ),
+                    // LEARN – KUNING
                     MenuGridCard(
                       title: 'SHEVA Learn',
                       subtitle: 'Edukasi gender equality',
-                      color: Color(0xFF00829F),
+                      color: isDarkMode
+                          ? const Color(0xFFF59E0B)
+                          : const Color(0xFFFBBF24),
+                      gradient: gradientLearn,
                       route: '/learn',
                       icon: Icons.book,
                     ),
+                    // MAP – MAGENTA CERAH
                     MenuGridCard(
                       title: 'SHEVA Map',
                       subtitle: 'Layanan bantuan terdekat',
-                      color: Color(0xFFCB338F),
+                      color: isDarkMode
+                          ? const Color(0xFFB84A8A)
+                          : const Color(0xFFD96AAE),
+                      gradient: gradientMap,
                       route: '/map',
                       icon: Icons.location_on,
                     ),
+                    // CIRCLE – UNGU CERAH
                     MenuGridCard(
                       title: 'SHEVA Circle',
                       subtitle: 'HeForShe - sekutu setara',
-                      color: Color(0xFF744AC1),
+                      color: isDarkMode
+                          ? const Color(0xFF7A5AAE)
+                          : const Color(0xFF9A7AC8),
+                      gradient: gradientCircle,
                       route: '/circle',
                       icon: Icons.favorite,
                     ),
@@ -370,6 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingMd),
+
               // Visi
               Container(
                 margin:
@@ -414,6 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingMd),
+
               // Footer
               Padding(
                 padding: const EdgeInsets.symmetric(

@@ -24,10 +24,14 @@ import 'theme/theme_extension.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
+  // 🔥 Load environment variables dari file .env
   await dotenv.load(fileName: ".env");
 
-  // Initialize Supabase
+  // 🔥 Debug: pastikan .env terbaca
+  print('🔍 SUPABASE_URL: ${dotenv.env['SUPABASE_URL']}');
+  print('🔍 SUPABASE_ANON_KEY: ${dotenv.env['SUPABASE_ANON_KEY']}');
+
+  // 🔥 Initialize Supabase
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,

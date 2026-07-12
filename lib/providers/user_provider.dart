@@ -23,21 +23,17 @@ class UserProvider extends ChangeNotifier {
   String? get userId => _userId;
 
   // ============================================================
-  // LOAD DATA (Lokal + Sync dari Supabase)
+  // LOAD DATA
   // ============================================================
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // 1. Ambil userId dari lokal
     _userId = prefs.getString('supabase_user_id');
-
-    // 2. Ambil data lokal
     _userName = prefs.getString('userName') ?? 'Famuh24_';
     _userGender = prefs.getString('userGender') ?? 'Laki-laki';
     _joinDate = prefs.getString('joinDate') ?? 'Maret 2022';
     _profileImagePath = prefs.getString('profileImagePath');
 
-    // 3. Sync dari Supabase jika ada userId
     if (_userId != null) {
       try {
         final profile = await _supabase.getProfile(_userId!);
@@ -45,7 +41,6 @@ class UserProvider extends ChangeNotifier {
           _userName = profile['name'] ?? _userName;
           _userGender = profile['gender'] ?? _userGender;
           _joinDate = profile['join_date'] ?? _joinDate;
-          // Simpan ke lokal
           await prefs.setString('userName', _userName);
           await prefs.setString('userGender', _userGender);
           await prefs.setString('joinDate', _joinDate);
@@ -59,14 +54,45 @@ class UserProvider extends ChangeNotifier {
   }
 
   // ============================================================
-  // SETTERS (Lokal + Supabase)
+  // 🔥 REFRESH USER ID (DENGAN FALLBACK LOCAL)
+  // ============================================================
+  Future<String?> refreshUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('supabase_user_id');
+
+    // Jika sudah ada di lokal, langsung return
+    if (userId != null) {
+      _userId = userId;
+      notifyListeners();
+      return userId;
+    }
+
+    // Coba buat di Supabase (dengan retry)
+    try {
+      userId = await _supabase.getOrCreateUserId();
+      await prefs.setString('supabase_user_id', userId);
+      _userId = userId;
+      notifyListeners();
+      return userId;
+    } catch (e) {
+      // 🔥 FALLBACK: Buat ID lokal sementara jika Supabase gagal
+      final fallbackId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      await prefs.setString('supabase_user_id', fallbackId);
+      _userId = fallbackId;
+      notifyListeners();
+      return fallbackId;
+    }
+  }
+
+  // ============================================================
+  // SETTERS
   // ============================================================
   Future<void> setUserName(String name) async {
     _userName = name;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', name);
 
-    if (_userId != null) {
+    if (_userId != null && !_userId!.startsWith('local_')) {
       try {
         await _supabase.upsertProfile(
           userId: _userId!,
@@ -84,7 +110,7 @@ class UserProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userGender', gender);
 
-    if (_userId != null) {
+    if (_userId != null && !_userId!.startsWith('local_')) {
       try {
         await _supabase.upsertProfile(
           userId: _userId!,
@@ -102,7 +128,7 @@ class UserProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('joinDate', date);
 
-    if (_userId != null) {
+    if (_userId != null && !_userId!.startsWith('local_')) {
       try {
         await _supabase.upsertProfile(
           userId: _userId!,

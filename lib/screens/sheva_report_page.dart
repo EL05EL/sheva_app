@@ -22,7 +22,6 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
   bool _isAnonym = true;
   bool _isLoading = false;
 
-  // 🔥 Data dinamis dari Supabase (hanya 4 hotline: SAPA, SEJIWA, Komnas, CS Fadil)
   List<Hotline> _hotlines = [];
   List<String> _reportTypes = [];
   List<String> _locations = [];
@@ -30,9 +29,6 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
 
   final SupabaseService _supabase = SupabaseService();
 
-  // ============================================================
-  // INISIALISASI: AMBIL DATA DARI SUPABASE
-  // ============================================================
   @override
   void initState() {
     super.initState();
@@ -43,7 +39,6 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
     setState(() => _isLoadingData = true);
 
     try {
-      // Ambil hotline dari Supabase (category 'report')
       final hotlineData = await _supabase.getHotlines(category: 'report');
       final hotlines = hotlineData
           .map((map) => Hotline(
@@ -60,7 +55,6 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
         _hotlines = hotlines;
       }
 
-      // 🔥 Data jenis laporan dan lokasi masih hardcoded untuk sementara
       _reportTypes = [
         'KBG Fisik',
         'KBG Psikologis',
@@ -79,7 +73,6 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
         'Lainnya',
       ];
     } catch (e) {
-      // Fallback
       _hotlines = _getDefaultHotlines();
       _reportTypes = [
         'KBG Fisik',
@@ -151,15 +144,36 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
   }
 
   // ============================================================
-  // SIMPAN LAPORAN KE SUPABASE
+  // 🔥 SIMPAN LAPORAN KE SUPABASE (DENGAN AUTO-CREATE USER ID & FALLBACK)
   // ============================================================
   Future<void> _sendReportToSupabase(String message) async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final userId = userProvider.userId;
+    String? userId = userProvider.userId;
+
+    // Jika userId null, coba buat/baca dari Supabase
     if (userId == null) {
-      _showSnackBar('User ID tidak ditemukan, laporan tidak tersimpan.');
+      try {
+        userId = await userProvider.refreshUserId();
+        if (userId == null) {
+          _showSnackBar(
+              '⚠️ Gagal mendapatkan ID pengguna. Laporan tetap dikirim via WhatsApp.');
+          // Tetap lanjutkan ke WhatsApp, tapi tidak simpan ke DB
+          return;
+        }
+      } catch (e) {
+        _showSnackBar('⚠️ Error: $e');
+        return;
+      }
+    }
+
+    // 🔥 Jika userId adalah fallback lokal (mulai dengan 'local_'), jangan simpan ke DB
+    if (userId.startsWith('local_')) {
+      _showSnackBar(
+          '⚠️ Tidak dapat menyimpan laporan ke server (offline/error), tapi sudah dikirim via WhatsApp.');
       return;
     }
+
+    // Jika userId valid (dari Supabase), simpan laporan
     try {
       await _supabase.createReport({
         'user_id': userId,
@@ -436,39 +450,41 @@ For She, For He, For All.
                             borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(AppTheme.spacingLg)),
                           ),
-                          builder: (context) => Container(
-                            padding: const EdgeInsets.all(AppTheme.spacingLg),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text('Kirim Laporan ke:',
-                                    style: TextStyle(
-                                        color: colors.text1,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700)),
-                                const SizedBox(height: AppTheme.spacingMd),
-                                ..._hotlines.map((hotline) => Column(
-                                      children: [
-                                        HotlineTile(
-                                          name: hotline.name,
-                                          phone: hotline.phone,
-                                          whatsapp: hotline.whatsapp,
-                                          description: hotline.description,
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            _sendReportToWhatsApp(hotline);
-                                          },
-                                        ),
-                                        Divider(color: colors.border),
-                                      ],
-                                    )),
-                                const SizedBox(height: AppTheme.spacingXs),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('Batal',
-                                      style: TextStyle(color: colors.text3)),
-                                ),
-                              ],
+                          builder: (context) => SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.all(AppTheme.spacingLg),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('Kirim Laporan ke:',
+                                      style: TextStyle(
+                                          color: colors.text1,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700)),
+                                  const SizedBox(height: AppTheme.spacingMd),
+                                  ..._hotlines.map((hotline) => Column(
+                                        children: [
+                                          HotlineTile(
+                                            name: hotline.name,
+                                            phone: hotline.phone,
+                                            whatsapp: hotline.whatsapp,
+                                            description: hotline.description,
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              _sendReportToWhatsApp(hotline);
+                                            },
+                                          ),
+                                          Divider(color: colors.border),
+                                        ],
+                                      )),
+                                  const SizedBox(height: AppTheme.spacingXs),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('Batal',
+                                        style: TextStyle(color: colors.text3)),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -507,9 +523,6 @@ For She, For He, For All.
   }
 }
 
-// ============================================================
-// MODEL HOTLINE
-// ============================================================
 class Hotline {
   final String name;
   final String phone;

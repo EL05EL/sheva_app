@@ -5,28 +5,74 @@ class SupabaseService {
   final SupabaseClient _client = Supabase.instance.client;
 
   // ============================================================
-  // AUTH - Login Anonim
+  // 🔥 AUTH - Login Anonim (DENGAN RETRY & TIMEOUT)
   // ============================================================
   Future<String> getOrCreateUserId() async {
     final prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('supabase_user_id');
 
+    // Jika ada di lokal, coba validasi session
     if (userId != null) {
       try {
         final session = _client.auth.currentSession;
         if (session != null) {
           return userId;
         }
-      } catch (_) {}
+      } catch (_) {
+        // Session invalid, lanjut buat ulang
+      }
     }
 
-    final response = await _client.auth.signInAnonymously();
-    final user = response.user;
-    if (user != null) {
-      await prefs.setString('supabase_user_id', user.id);
-      return user.id;
+    // Coba buat user anonim baru dengan retry 3x
+    for (int attempt = 0; attempt < 3; attempt++) {
+      try {
+        final response = await _client.auth.signInAnonymously();
+        final user = response.user;
+        if (user != null) {
+          await prefs.setString('supabase_user_id', user.id);
+          return user.id;
+        }
+      } catch (e) {
+        // Jika masih attempt < 2, tunggu sebentar lalu retry
+        if (attempt < 2) {
+          await Future.delayed(Duration(seconds: 1 + attempt));
+          continue;
+        }
+        // Jika sudah attempt ke-3, lempar exception
+        rethrow;
+      }
     }
-    throw Exception('Gagal login anonim ke Supabase');
+
+    throw Exception('Gagal login anonim ke Supabase setelah 3 percobaan');
+  }
+
+  // ============================================================
+  // 🔥 CEK KONEKSI SUPABASE (PING) – DIPERBAIKI
+  // ============================================================
+  Future<bool> isSupabaseReachable() async {
+    try {
+      // Cukup cek apakah currentSession tidak null (tanpa variabel sia-sia)
+      return _client.auth.currentSession != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ============================================================
+  // HOTLINES
+  // ============================================================
+  Future<List<Map<String, dynamic>>> getHotlines({String? category}) async {
+    try {
+      var query = _client.from('hotlines').select('*');
+      if (category != null) {
+        query = query.eq('category', category);
+      }
+      query = query.eq('is_active', true);
+      final response = await query.order('sort_order', ascending: true);
+      return response;
+    } catch (e) {
+      return [];
+    }
   }
 
   // ============================================================
@@ -122,22 +168,5 @@ class SupabaseService {
         .select()
         .eq('user_id', userId)
         .maybeSingle();
-  }
-
-  // ============================================================
-  // HOTLINES - AMBIL DATA DARI SUPABASE
-  // ============================================================
-  Future<List<Map<String, dynamic>>> getHotlines({String? category}) async {
-    try {
-      var query = _client.from('hotlines').select('*');
-      if (category != null) {
-        query = query.eq('category', category);
-      }
-      query = query.eq('is_active', true);
-      final response = await query.order('sort_order', ascending: true);
-      return response;
-    } catch (e) {
-      return [];
-    }
   }
 }

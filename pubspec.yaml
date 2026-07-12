@@ -53,4 +53,4 @@ flutter:
   
   assets:
     - assets/images/logosheva.png
-    - assets/.env
+    - .env 

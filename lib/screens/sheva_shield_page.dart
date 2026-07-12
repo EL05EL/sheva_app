@@ -25,12 +25,10 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
-  // 🔥 Hotline untuk bottom sheet "Kirim Laporan ke:" (dari Supabase)
   List<HotlineData> _hotlines = [];
   bool _isLoadingHotlines = true;
   final SupabaseService _supabase = SupabaseService();
 
-  // 🔥 Data layanan darurat (hardcoded, sesuai revisi)
   final List<EmergencyService> _emergencyServices = [
     EmergencyService(
       name: 'SAPA 129',
@@ -66,9 +64,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     ),
   ];
 
-  // ============================================================
-  // INISIALISASI: AMBIL HOTLINE DARI SUPABASE (untuk bottom sheet)
-  // ============================================================
   @override
   void initState() {
     super.initState();
@@ -78,7 +73,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
   Future<void> _loadHotlines() async {
     setState(() => _isLoadingHotlines = true);
     try {
-      // Ambil dari Supabase dengan category 'shield' (berisi SAPA, Komnas, SEJIWA, CS Fadil)
       final data = await _supabase.getHotlines(category: 'shield');
       final hotlines = data
           .map((map) => HotlineData(
@@ -126,9 +120,6 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
     ];
   }
 
-  // ============================================================
-  // FUNGSI UTAMA
-  // ============================================================
   Future<void> _pickFromCamera() async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -351,7 +342,6 @@ For She, For He, For All.
 
     setState(() => _isLoading = false);
 
-    // 🔥 Bottom sheet "Kirim Laporan ke:" hanya menampilkan SAPA, SEJIWA, Komnas, CS Fadil
     showModalBottomSheet(
       context: context,
       backgroundColor: context.shevaColors.bgDeep,
@@ -359,33 +349,36 @@ For She, For He, For All.
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(AppTheme.spacingLg)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(AppTheme.spacingLg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Kirim Laporan ke:',
-              style: TextStyle(
-                color: context.shevaColors.text1,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
+      builder: (context) => SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(AppTheme.spacingLg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Kirim Laporan ke:',
+                style: TextStyle(
+                  color: context.shevaColors.text1,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(height: AppTheme.spacingMd),
-            ..._hotlines.map((hotline) => Column(
-                  children: [
-                    _buildHotlineOption(hotline.name,
-                        hotline.whatsapp ?? hotline.phone, message),
-                    Divider(color: context.shevaColors.border),
-                  ],
-                )),
-            const SizedBox(height: AppTheme.spacingMd),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-            ),
-          ],
+              const SizedBox(height: AppTheme.spacingMd),
+              ..._hotlines.map((hotline) => Column(
+                    children: [
+                      _buildHotlineOption(hotline.name,
+                          hotline.whatsapp ?? hotline.phone, message),
+                      Divider(color: context.shevaColors.border),
+                    ],
+                  )),
+              const SizedBox(height: AppTheme.spacingMd),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child:
+                    const Text('Batal', style: TextStyle(color: Colors.grey)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -418,9 +411,6 @@ For She, For He, For All.
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
   @override
   Widget build(BuildContext context) {
     final colors = context.shevaColors;
@@ -579,49 +569,60 @@ For She, For He, For All.
                 ),
               ),
             const SizedBox(height: AppTheme.spacingLg),
+
+            // 🔥 LOKASI KEJADIAN – DIPERBAIKI DENGAN EXPANDED & OVERFLOW ELLIPSIS
             Text('Lokasi Kejadian',
                 style: TextStyle(color: colors.text1, fontSize: 16)),
             const SizedBox(height: AppTheme.spacingXs),
-            InkWell(
-              onTap: _detectLocation,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              splashColor: colors.text1.withOpacity(0.1),
-              highlightColor: colors.text1.withOpacity(0.05),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacingMd,
-                    vertical: AppTheme.spacingSm),
-                decoration: ShapeDecoration(
-                  color: colors.cardWarm,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: colors.accent2),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: _detectLocation,
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    _isLoadingLocation
-                        ? SizedBox(
-                            width: AppTheme.spacingLg,
-                            height: AppTheme.spacingLg,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: colors.accent))
-                        : Icon(Icons.location_on,
-                            color: colors.accent, size: AppTheme.spacingLg),
-                    const SizedBox(width: AppTheme.spacingXs),
-                    Expanded(
-                      child: Text(
-                        _isLoadingLocation
-                            ? 'Mendapatkan lokasi...'
-                            : _location,
-                        style: TextStyle(color: colors.text1, fontSize: 14),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    splashColor: colors.text1.withOpacity(0.1),
+                    highlightColor: colors.text1.withOpacity(0.05),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.spacingMd,
+                          vertical: AppTheme.spacingSm),
+                      decoration: ShapeDecoration(
+                        color: colors.cardWarm,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: colors.accent2),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusMd),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          _isLoadingLocation
+                              ? SizedBox(
+                                  width: AppTheme.spacingLg,
+                                  height: AppTheme.spacingLg,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: colors.accent))
+                              : Icon(Icons.location_on,
+                                  color: colors.accent,
+                                  size: AppTheme.spacingLg),
+                          const SizedBox(width: AppTheme.spacingXs),
+                          Expanded(
+                            child: Text(
+                              _isLoadingLocation
+                                  ? 'Mendapatkan lokasi...'
+                                  : _location,
+                              style:
+                                  TextStyle(color: colors.text1, fontSize: 14),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: AppTheme.spacingXs),
             Container(
@@ -644,6 +645,8 @@ For She, For He, For All.
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
+
+            // 🔥 DESKRIPSI KEJADIAN – JUGA DIBERI EXPANDED
             Text('Deskripsi Kejadian',
                 style: TextStyle(color: colors.text1, fontSize: 16)),
             const SizedBox(height: AppTheme.spacingXs),
@@ -669,16 +672,13 @@ For She, For He, For All.
             ),
             const SizedBox(height: AppTheme.spacingXl),
 
-            // ============================================================
-            // 🔥 LAYANAN DARURAT – 4 KARTU DENGAN GRADIENT & EFEK NEON
-            // ============================================================
+            // LAYANAN DARURAT
             Text('Layanan Darurat',
                 style: TextStyle(
                     color: colors.text1,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: AppTheme.spacingSm),
-            // Grid 2 kolom
             Row(
               children: [
                 Expanded(child: _buildEmergencyCard(_emergencyServices[0])),
@@ -755,9 +755,6 @@ For She, For He, For All.
     );
   }
 
-  // ============================================================
-  // 🔥 KARTU LAYANAN DARURAT DENGAN GRADIENT & EFEK NEON
-  // ============================================================
   Widget _buildEmergencyCard(EmergencyService service) {
     final colors = context.shevaColors;
     final message =
@@ -840,16 +837,19 @@ For She, For He, For All.
                   fontSize: 16,
                   fontWeight: FontWeight.w700)),
           const SizedBox(width: AppTheme.spacingMd),
-          Text(text, style: TextStyle(color: colors.text1, fontSize: 16)),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(color: colors.text1, fontSize: 16),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-// ============================================================
-// MODEL HOTLINE DATA (untuk bottom sheet)
-// ============================================================
 class HotlineData {
   final String name;
   final String phone;
@@ -864,9 +864,6 @@ class HotlineData {
   });
 }
 
-// ============================================================
-// MODEL EMERGENCY SERVICE (untuk kartu darurat)
-// ============================================================
 class EmergencyService {
   final String name;
   final String phone;
