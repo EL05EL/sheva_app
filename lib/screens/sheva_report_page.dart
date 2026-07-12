@@ -22,62 +22,111 @@ class _ShevaReportPageState extends State<ShevaReportPage> {
   bool _isAnonym = true;
   bool _isLoading = false;
 
-  final List<String> _reportTypes = [
-    'KBG Fisik',
-    'KBG Psikologis',
-    'KBG Seksual',
-    'KBG Online',
-    'Diskriminasi',
-    'Perkawinan Anak',
-  ];
-
-  final List<String> _locations = [
-    'Rumah / Keluarga',
-    'Tempat Kerja',
-    'Sekolah / Kampus',
-    'Ruang Publik',
-    'Media Sosial / Internet',
-    'Lingkungan Masyarakat',
-    'Lainnya',
-  ];
-
-  // ============================================================
-  // 🔥 HOTLINE DENGAN NOMOR WHATSAPP ASLI (SUDAH DIVERIFIKASI)
-  // ============================================================
-  final List<Hotline> _hotlines = [
-    Hotline(
-      name: 'SAPA 129',
-      phone: '129',
-      whatsapp: '08111129129',
-      description: 'Hotline Nasional 24 jam KemenPPPA',
-    ),
-    Hotline(
-      name: 'Komnas Perempuan',
-      phone: '0213903963',
-      whatsapp: '08179323375',
-      description: 'Komisi Nasional Anti Kekerasan terhadap Perempuan',
-    ),
-    Hotline(
-      name: 'LBH APIK',
-      phone: '02187797289',
-      whatsapp: '08138882669',
-      description: 'Lembaga Bantuan Hukum untuk perempuan',
-    ),
-    Hotline(
-      name: 'Yayasan Pulih',
-      phone: '02178842580',
-      whatsapp: '08118436633',
-      description: 'Konseling psikologis & pemulihan trauma',
-    ),
-    Hotline(
-      name: 'SEJIWA',
-      phone: '119',
-      whatsapp: '081380073120',
-      description: 'Layanan kesehatan jiwa & pencegahan bunuh diri',
-    ),
-  ];
+  // 🔥 Data dinamis dari Supabase (hanya 4 hotline: SAPA, SEJIWA, Komnas, CS Fadil)
+  List<Hotline> _hotlines = [];
+  List<String> _reportTypes = [];
+  List<String> _locations = [];
+  bool _isLoadingData = true;
 
   final SupabaseService _supabase = SupabaseService();
+
+  // ============================================================
+  // INISIALISASI: AMBIL DATA DARI SUPABASE
+  // ============================================================
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoadingData = true);
+
+    try {
+      // Ambil hotline dari Supabase (category 'report')
+      final hotlineData = await _supabase.getHotlines(category: 'report');
+      final hotlines = hotlineData
+          .map((map) => Hotline(
+                name: map['name'] ?? '',
+                phone: map['phone'] ?? '',
+                whatsapp: map['whatsapp'] ?? map['phone'],
+                description: map['description'] ?? '',
+              ))
+          .toList();
+
+      if (hotlines.isEmpty) {
+        _hotlines = _getDefaultHotlines();
+      } else {
+        _hotlines = hotlines;
+      }
+
+      // 🔥 Data jenis laporan dan lokasi masih hardcoded untuk sementara
+      _reportTypes = [
+        'KBG Fisik',
+        'KBG Psikologis',
+        'KBG Seksual',
+        'KBG Online',
+        'Diskriminasi',
+        'Perkawinan Anak',
+      ];
+      _locations = [
+        'Rumah / Keluarga',
+        'Tempat Kerja',
+        'Sekolah / Kampus',
+        'Ruang Publik',
+        'Media Sosial / Internet',
+        'Lingkungan Masyarakat',
+        'Lainnya',
+      ];
+    } catch (e) {
+      // Fallback
+      _hotlines = _getDefaultHotlines();
+      _reportTypes = [
+        'KBG Fisik',
+        'KBG Psikologis',
+        'KBG Seksual',
+        'KBG Online',
+        'Diskriminasi',
+        'Perkawinan Anak',
+      ];
+      _locations = [
+        'Rumah / Keluarga',
+        'Tempat Kerja',
+        'Sekolah / Kampus',
+        'Ruang Publik',
+        'Media Sosial / Internet',
+        'Lingkungan Masyarakat',
+        'Lainnya',
+      ];
+    } finally {
+      if (mounted) setState(() => _isLoadingData = false);
+    }
+  }
+
+  List<Hotline> _getDefaultHotlines() {
+    return [
+      Hotline(
+          name: 'SAPA 129',
+          phone: '129',
+          whatsapp: '08111129129',
+          description: 'Hotline Nasional 24 jam KemenPPPA'),
+      Hotline(
+          name: 'SEJIWA',
+          phone: '119',
+          whatsapp: '081380073120',
+          description: 'Layanan kesehatan jiwa & pencegahan bunuh diri'),
+      Hotline(
+          name: 'Komnas Perempuan',
+          phone: '0213903963',
+          whatsapp: '08179323375',
+          description: 'Komisi Nasional Anti Kekerasan'),
+      Hotline(
+          name: 'CS SHEVA - Fadil',
+          phone: '081243265263',
+          whatsapp: '081243265263',
+          description: 'Customer Service SHEVA (24 jam)'),
+    ];
+  }
 
   // ============================================================
   // FUNGSI KIRIM KE WHATSAPP
@@ -158,10 +207,7 @@ For She, For He, For All.
 
     setState(() => _isLoading = false);
 
-    // Kirim ke WhatsApp
     await _sendToWhatsApp(hotline.whatsapp ?? hotline.phone, message);
-
-    // Simpan ke Supabase
     await _sendReportToSupabase(message);
   }
 
@@ -181,6 +227,21 @@ For She, For He, For All.
   @override
   Widget build(BuildContext context) {
     final colors = context.shevaColors;
+
+    if (_isLoadingData) {
+      return Scaffold(
+        backgroundColor: colors.bgDeep,
+        appBar: AppBar(
+          backgroundColor: colors.header,
+          foregroundColor: colors.text1,
+          elevation: 0,
+          title: const Text('SHEVA Report',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: colors.bgDeep,
       floatingActionButton: const SosButton(),
@@ -189,10 +250,8 @@ For She, For He, For All.
         backgroundColor: colors.header,
         foregroundColor: colors.text1,
         elevation: 0,
-        title: const Text(
-          'SHEVA Report',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
+        title: const Text('SHEVA Report',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacingMd),
@@ -209,21 +268,17 @@ For She, For He, For All.
               child: Text(
                 'Semua laporan bersifat rahasia dan dienkripsi. Data anda tidak akan dibagikan tanpa persetujuan anda. Anda bisa memilih untuk melapor secara anonim.',
                 style: TextStyle(
-                  color: colors.text2,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+                    color: colors.text2,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            Text(
-              'Jenis Laporan*',
-              style: TextStyle(
-                color: colors.accent,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text('Jenis Laporan*',
+                style: TextStyle(
+                    color: colors.accent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
             const SizedBox(height: AppTheme.spacingXs),
             Wrap(
               spacing: AppTheme.spacingXs,
@@ -237,39 +292,31 @@ For She, For He, For All.
                   highlightColor: colors.text1.withOpacity(0.05),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.spacingMd,
-                      vertical: AppTheme.spacingXs,
-                    ),
+                        horizontal: AppTheme.spacingMd,
+                        vertical: AppTheme.spacingXs),
                     decoration: ShapeDecoration(
                       color: isSelected ? colors.accentMid : colors.card,
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
-                          color: isSelected ? colors.accent : colors.border,
-                        ),
+                            color: isSelected ? colors.accent : colors.border),
                         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
                     ),
-                    child: Text(
-                      type,
-                      style: TextStyle(
-                        color: isSelected ? colors.text1 : colors.text2,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: Text(type,
+                        style: TextStyle(
+                            color: isSelected ? colors.text1 : colors.text2,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600)),
                   ),
                 );
               }).toList(),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            Text(
-              'Lokasi Kejadian',
-              style: TextStyle(
-                color: colors.accent,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text('Lokasi Kejadian',
+                style: TextStyle(
+                    color: colors.accent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
             const SizedBox(height: AppTheme.spacingXs),
             SizedBox(
               height: 50,
@@ -286,27 +333,23 @@ For She, For He, For All.
                       highlightColor: colors.text1.withOpacity(0.05),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppTheme.spacingSm,
-                          vertical: AppTheme.spacingXs,
-                        ),
+                            horizontal: AppTheme.spacingSm,
+                            vertical: AppTheme.spacingXs),
                         decoration: ShapeDecoration(
                           color: isSelected ? colors.accentMid : colors.card,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: isSelected ? colors.accent : colors.border,
-                            ),
+                                color:
+                                    isSelected ? colors.accent : colors.border),
                             borderRadius:
                                 BorderRadius.circular(AppTheme.radiusMd),
                           ),
                         ),
-                        child: Text(
-                          location,
-                          style: TextStyle(
-                            color: isSelected ? colors.text1 : colors.text2,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: Text(location,
+                            style: TextStyle(
+                                color: isSelected ? colors.text1 : colors.text2,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600)),
                       ),
                     ),
                   );
@@ -314,14 +357,11 @@ For She, For He, For All.
               ),
             ),
             const SizedBox(height: AppTheme.spacingLg),
-            Text(
-              'Deskripsi Kejadian*',
-              style: TextStyle(
-                color: colors.accent,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text('Deskripsi Kejadian*',
+                style: TextStyle(
+                    color: colors.accent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
             const SizedBox(height: AppTheme.spacingXs),
             Container(
               height: 120,
@@ -346,13 +386,8 @@ For She, For He, For All.
             const SizedBox(height: AppTheme.spacingXs),
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
-                '${_descriptionController.text.length} Karakter',
-                style: TextStyle(
-                  color: colors.text4,
-                  fontSize: 10,
-                ),
-              ),
+              child: Text('${_descriptionController.text.length} Karakter',
+                  style: TextStyle(color: colors.text4, fontSize: 10)),
             ),
             const SizedBox(height: AppTheme.spacingLg),
             Row(
@@ -368,22 +403,13 @@ For She, For He, For All.
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Laporan Anonim',
-                        style: TextStyle(
-                          color: colors.text1,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        'Nama anda tidak akan dicantumkan',
-                        style: TextStyle(
-                          color: colors.text4,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+                      Text('Laporan Anonim',
+                          style: TextStyle(
+                              color: colors.text1,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600)),
+                      Text('Nama anda tidak akan dicantumkan',
+                          style: TextStyle(color: colors.text4, fontSize: 10)),
                     ],
                   ),
                 ),
@@ -415,14 +441,11 @@ For She, For He, For All.
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  'Kirim Laporan ke:',
-                                  style: TextStyle(
-                                    color: colors.text1,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+                                Text('Kirim Laporan ke:',
+                                    style: TextStyle(
+                                        color: colors.text1,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700)),
                                 const SizedBox(height: AppTheme.spacingMd),
                                 ..._hotlines.map((hotline) => Column(
                                       children: [
@@ -442,10 +465,8 @@ For She, For He, For All.
                                 const SizedBox(height: AppTheme.spacingXs),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: Text(
-                                    'Batal',
-                                    style: TextStyle(color: colors.text3),
-                                  ),
+                                  child: Text('Batal',
+                                      style: TextStyle(color: colors.text3)),
                                 ),
                               ],
                             ),
@@ -466,26 +487,17 @@ For She, For He, For All.
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Kirim Laporan',
+                            strokeWidth: 2, color: Colors.white))
+                    : const Text('Kirim Laporan',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
+                            fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
             Center(
               child: Text(
                 'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-                style: TextStyle(
-                  color: colors.text3,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: TextStyle(color: colors.text3, fontSize: 11),
               ),
             ),
           ],

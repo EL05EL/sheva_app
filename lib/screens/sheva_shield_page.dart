@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_extension.dart';
 
@@ -24,6 +25,110 @@ class _ShevaShieldPageState extends State<ShevaShieldPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
+  // 🔥 Hotline untuk bottom sheet "Kirim Laporan ke:" (dari Supabase)
+  List<HotlineData> _hotlines = [];
+  bool _isLoadingHotlines = true;
+  final SupabaseService _supabase = SupabaseService();
+
+  // 🔥 Data layanan darurat (hardcoded, sesuai revisi)
+  final List<EmergencyService> _emergencyServices = [
+    EmergencyService(
+      name: 'SAPA 129',
+      phone: '129',
+      description: 'Hotline Nasional 24 jam',
+      gradient: const LinearGradient(
+        colors: [Color(0xFFC23350), Color(0xFF7A0A22)],
+      ),
+    ),
+    EmergencyService(
+      name: 'Polisi 110',
+      phone: '110',
+      description: 'Layanan Darurat',
+      gradient: const LinearGradient(
+        colors: [Color(0xFF3E56A0), Color(0xFF1E2A50)],
+      ),
+    ),
+    EmergencyService(
+      name: 'SEJIWA',
+      phone: '119',
+      description: 'Kesehatan Jiwa & Pencegahan',
+      gradient: const LinearGradient(
+        colors: [Color(0xFFC23E8E), Color(0xFF7A2560)],
+      ),
+    ),
+    EmergencyService(
+      name: 'Ambulance 118',
+      phone: '118',
+      description: 'Unit Gawat Darurat',
+      gradient: const LinearGradient(
+        colors: [Color(0xFF34A860), Color(0xFF1B6B3A)],
+      ),
+    ),
+  ];
+
+  // ============================================================
+  // INISIALISASI: AMBIL HOTLINE DARI SUPABASE (untuk bottom sheet)
+  // ============================================================
+  @override
+  void initState() {
+    super.initState();
+    _loadHotlines();
+  }
+
+  Future<void> _loadHotlines() async {
+    setState(() => _isLoadingHotlines = true);
+    try {
+      // Ambil dari Supabase dengan category 'shield' (berisi SAPA, Komnas, SEJIWA, CS Fadil)
+      final data = await _supabase.getHotlines(category: 'shield');
+      final hotlines = data
+          .map((map) => HotlineData(
+                name: map['name'] ?? '',
+                phone: map['phone'] ?? '',
+                whatsapp: map['whatsapp'] ?? map['phone'],
+                description: map['description'] ?? '',
+              ))
+          .toList();
+
+      if (hotlines.isEmpty) {
+        _hotlines = _getDefaultHotlines();
+      } else {
+        _hotlines = hotlines;
+      }
+    } catch (_) {
+      _hotlines = _getDefaultHotlines();
+    } finally {
+      if (mounted) setState(() => _isLoadingHotlines = false);
+    }
+  }
+
+  List<HotlineData> _getDefaultHotlines() {
+    return [
+      HotlineData(
+          name: 'SAPA 129',
+          phone: '08111129129',
+          whatsapp: '08111129129',
+          description: 'Hotline Nasional 24 jam'),
+      HotlineData(
+          name: 'Komnas Perempuan',
+          phone: '08179323375',
+          whatsapp: '08179323375',
+          description: 'Anti Kekerasan'),
+      HotlineData(
+          name: 'SEJIWA',
+          phone: '081380073120',
+          whatsapp: '081380073120',
+          description: 'Kesehatan Jiwa'),
+      HotlineData(
+          name: 'CS SHEVA - Fadil',
+          phone: '081243265263',
+          whatsapp: '081243265263',
+          description: 'Customer Service 24 jam'),
+    ];
+  }
+
+  // ============================================================
+  // FUNGSI UTAMA
+  // ============================================================
   Future<void> _pickFromCamera() async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -246,7 +351,7 @@ For She, For He, For All.
 
     setState(() => _isLoading = false);
 
-    // 🔥 Hotline dengan nomor WhatsApp asli (sudah diverifikasi)
+    // 🔥 Bottom sheet "Kirim Laporan ke:" hanya menampilkan SAPA, SEJIWA, Komnas, CS Fadil
     showModalBottomSheet(
       context: context,
       backgroundColor: context.shevaColors.bgDeep,
@@ -268,15 +373,13 @@ For She, For He, For All.
               ),
             ),
             const SizedBox(height: AppTheme.spacingMd),
-            _buildHotlineOption('SAPA 129', '08111129129', message),
-            Divider(color: context.shevaColors.border),
-            _buildHotlineOption('Polisi 110', '110', message),
-            Divider(color: context.shevaColors.border),
-            _buildHotlineOption('Ambulance 118', '118', message),
-            Divider(color: context.shevaColors.border),
-            _buildHotlineOption('Komnas Perempuan', '08179323375', message),
-            Divider(color: context.shevaColors.border),
-            _buildHotlineOption('SEJIWA', '081380073120', message),
+            ..._hotlines.map((hotline) => Column(
+                  children: [
+                    _buildHotlineOption(hotline.name,
+                        hotline.whatsapp ?? hotline.phone, message),
+                    Divider(color: context.shevaColors.border),
+                  ],
+                )),
             const SizedBox(height: AppTheme.spacingMd),
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -315,9 +418,27 @@ For She, For He, For All.
     );
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
   @override
   Widget build(BuildContext context) {
     final colors = context.shevaColors;
+
+    if (_isLoadingHotlines) {
+      return Scaffold(
+        backgroundColor: colors.bgDeep,
+        appBar: AppBar(
+          title:
+              const Text('SHEVA Shield', style: TextStyle(color: Colors.white)),
+          backgroundColor: colors.header,
+          foregroundColor: colors.text1,
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: colors.bgDeep,
       appBar: AppBar(
@@ -333,9 +454,8 @@ For She, For He, For All.
             onPressed: _isLoading ? null : _sendEmergencyReport,
             padding: const EdgeInsets.all(AppTheme.spacingXs),
             constraints: const BoxConstraints(
-              minWidth: AppTheme.touchTarget,
-              minHeight: AppTheme.touchTarget,
-            ),
+                minWidth: AppTheme.touchTarget,
+                minHeight: AppTheme.touchTarget),
           ),
         ],
       ),
@@ -485,8 +605,7 @@ For She, For He, For All.
                             width: AppTheme.spacingLg,
                             height: AppTheme.spacingLg,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: colors.accent),
-                          )
+                                strokeWidth: 2, color: colors.accent))
                         : Icon(Icons.location_on,
                             color: colors.accent, size: AppTheme.spacingLg),
                     const SizedBox(width: AppTheme.spacingXs),
@@ -550,76 +669,29 @@ For She, For He, For All.
             ),
             const SizedBox(height: AppTheme.spacingXl),
 
-            // Layanan Darurat
+            // ============================================================
+            // 🔥 LAYANAN DARURAT – 4 KARTU DENGAN GRADIENT & EFEK NEON
+            // ============================================================
             Text('Layanan Darurat',
                 style: TextStyle(
                     color: colors.text1,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: AppTheme.spacingSm),
+            // Grid 2 kolom
             Row(
               children: [
-                Expanded(
-                  child: _buildEmergencyCard(
-                    'SAPA 129',
-                    'Hotline Nasional 24 jam',
-                    '08111129129',
-                    colors.sosRed,
-                  ),
-                ),
+                Expanded(child: _buildEmergencyCard(_emergencyServices[0])),
                 const SizedBox(width: AppTheme.spacingSm),
-                Expanded(
-                  child: _buildEmergencyCard(
-                    'Polisi 110',
-                    'Layanan Darurat',
-                    '110',
-                    colors.blue,
-                  ),
-                ),
+                Expanded(child: _buildEmergencyCard(_emergencyServices[1])),
               ],
             ),
             const SizedBox(height: AppTheme.spacingSm),
             Row(
               children: [
-                Expanded(
-                  child: _buildEmergencyCard(
-                    'Ambulance 118',
-                    'Unit Gawat Darurat',
-                    '118',
-                    colors.green,
-                  ),
-                ),
+                Expanded(child: _buildEmergencyCard(_emergencyServices[2])),
                 const SizedBox(width: AppTheme.spacingSm),
-                Expanded(
-                  child: _buildEmergencyCard(
-                    'Komnas Perempuan',
-                    'Anti Kekerasan',
-                    '08179323375',
-                    colors.iconProtection,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppTheme.spacingSm),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildEmergencyCard(
-                    'SEJIWA',
-                    'Kesehatan Jiwa',
-                    '081380073120',
-                    colors.accent2,
-                  ),
-                ),
-                const SizedBox(width: AppTheme.spacingSm),
-                Expanded(
-                  child: _buildEmergencyCard(
-                    'LBH APIK',
-                    'Bantuan Hukum',
-                    '08138882669',
-                    colors.magenta,
-                  ),
-                ),
+                Expanded(child: _buildEmergencyCard(_emergencyServices[3])),
               ],
             ),
             const SizedBox(height: AppTheme.spacingXl),
@@ -648,8 +720,7 @@ For She, For He, For All.
                   backgroundColor: colors.sosRed,
                   foregroundColor: colors.text1,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  ),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
                   elevation: AppTheme.elevationMedium,
                 ),
                 child: _isLoading
@@ -657,8 +728,7 @@ For She, For He, For All.
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
-                      )
+                            strokeWidth: 2, color: Colors.white))
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -685,40 +755,55 @@ For She, For He, For All.
     );
   }
 
-  Widget _buildEmergencyCard(
-      String title, String subtitle, String phoneNumber, Color cardColor) {
+  // ============================================================
+  // 🔥 KARTU LAYANAN DARURAT DENGAN GRADIENT & EFEK NEON
+  // ============================================================
+  Widget _buildEmergencyCard(EmergencyService service) {
     final colors = context.shevaColors;
     final message =
         'Halo, saya membutuhkan bantuan darurat. ${_descriptionController.text}';
+
     return InkWell(
-      onTap: () => _showSendOptions(phoneNumber, message),
+      onTap: () => _showSendOptions(service.phone, message),
       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       splashColor: colors.text1.withOpacity(0.1),
       highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.symmetric(
             vertical: AppTheme.spacingMd, horizontal: AppTheme.spacingSm),
-        decoration: ShapeDecoration(
-          color: cardColor,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: colors.text1.withOpacity(0.3), width: 1.5),
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          ),
+        decoration: BoxDecoration(
+          gradient: service.gradient,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: colors.text1.withOpacity(0.3), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: service.gradient.colors.first.withOpacity(0.5),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              phoneNumber,
+              service.phone,
               style: TextStyle(
                 color: colors.text1,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
+                shadows: [
+                  Shadow(
+                    blurRadius: 8,
+                    color: Colors.black.withOpacity(0.3),
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 2),
             Text(
-              title,
+              service.name,
               style: TextStyle(
                 color: colors.text1,
                 fontSize: 12,
@@ -727,7 +812,7 @@ For She, For He, For All.
               textAlign: TextAlign.center,
             ),
             Text(
-              subtitle,
+              service.description,
               style: TextStyle(
                 color: colors.text1.withOpacity(0.85),
                 fontSize: 10,
@@ -760,4 +845,38 @@ For She, For He, For All.
       ),
     );
   }
+}
+
+// ============================================================
+// MODEL HOTLINE DATA (untuk bottom sheet)
+// ============================================================
+class HotlineData {
+  final String name;
+  final String phone;
+  final String? whatsapp;
+  final String description;
+
+  HotlineData({
+    required this.name,
+    required this.phone,
+    this.whatsapp,
+    required this.description,
+  });
+}
+
+// ============================================================
+// MODEL EMERGENCY SERVICE (untuk kartu darurat)
+// ============================================================
+class EmergencyService {
+  final String name;
+  final String phone;
+  final String description;
+  final Gradient gradient;
+
+  EmergencyService({
+    required this.name,
+    required this.phone,
+    required this.description,
+    required this.gradient,
+  });
 }

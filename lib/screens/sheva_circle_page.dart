@@ -112,46 +112,37 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
         backgroundColor: colors.header,
         foregroundColor: colors.text1,
         elevation: 0,
-        title: const Text(
-          'SHEVA Circle',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
+        title: const Text('SHEVA Circle',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
       ),
       body: Column(
         children: [
-          // 🔥 CHIP FILTER – RAPI seperti SHEVA Learn
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spacingMd,
-              vertical: AppTheme.spacingSm,
-            ),
-            child: SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildCityChip('Semua Kota'),
-                  const SizedBox(width: 8),
-                  _buildCityChip('Jakarta'),
-                  const SizedBox(width: 8),
-                  _buildCityChip('Surabaya'),
-                  const SizedBox(width: 8),
-                  _buildCityChip('Yogyakarta'),
-                  const SizedBox(width: 8),
-                  _buildCityChip('Semarang'),
-                  const SizedBox(width: 8),
-                  _buildCityChip('Online / Nasional'),
-                ],
-              ),
+          // 🔥 CHIP SELECTOR – gaya konsisten dengan Sheva Learn
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildCityChip('Semua Kota'),
+                const SizedBox(width: AppTheme.spacingSm),
+                _buildCityChip('Jakarta'),
+                const SizedBox(width: AppTheme.spacingSm),
+                _buildCityChip('Surabaya'),
+                const SizedBox(width: AppTheme.spacingSm),
+                _buildCityChip('Yogyakarta'),
+                const SizedBox(width: AppTheme.spacingSm),
+                _buildCityChip('Semarang'),
+                const SizedBox(width: AppTheme.spacingSm),
+                _buildCityChip('Online / Nasional'),
+              ],
             ),
           ),
           // Daftar Komunitas
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.spacingMd,
-                vertical: AppTheme.spacingSm,
-              ),
+                  horizontal: AppTheme.spacingMd, vertical: AppTheme.spacingSm),
               itemCount: filteredCommunities.length,
               itemBuilder: (context, index) {
                 final community = filteredCommunities[index];
@@ -164,11 +155,7 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
             padding: const EdgeInsets.all(AppTheme.spacingMd),
             child: Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: TextStyle(
-                color: colors.text3,
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(color: colors.text3, fontSize: 11),
             ),
           ),
         ],
@@ -181,26 +168,26 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
     final isSelected = selectedCity == label;
     return InkWell(
       onTap: () => setState(() => selectedCity = label),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppTheme.spacingLg),
       splashColor: colors.text1.withOpacity(0.1),
       highlightColor: colors.text1.withOpacity(0.05),
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 6,
+          horizontal: AppTheme.spacingLg,
+          vertical: AppTheme.spacingXs,
         ),
         decoration: ShapeDecoration(
           color: isSelected ? colors.accentMid : colors.card,
           shape: RoundedRectangleBorder(
             side: BorderSide(color: colors.border),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppTheme.spacingLg),
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
             color: colors.text1,
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -227,37 +214,26 @@ class _ShevaCirclePageState extends State<ShevaCirclePage> {
                 Text(
                   community.name,
                   style: TextStyle(
-                    color: colors.text1,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                      color: colors.text1,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: AppTheme.spacingXxs),
                 Text(
                   community.address,
-                  style: TextStyle(
-                    color: colors.text2,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: TextStyle(color: colors.text2, fontSize: 13),
                 ),
               ],
             ),
           ),
           IconButton(
             onPressed: () => _openMap(community.mapUrl),
-            icon: Icon(
-              Icons.location_on,
-              color: colors.accent,
-              size: AppTheme.iconMain,
-            ),
+            icon: Icon(Icons.location_on,
+                color: colors.accent, size: AppTheme.iconMain),
             splashRadius: 24,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(
-              minWidth: 44,
-              minHeight: 44,
-            ),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
         ],
       ),

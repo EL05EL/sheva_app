@@ -71,6 +71,16 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
           'https://www.google.com/maps/search/?api=1&query=SEJIWA+Indonesia',
     ),
     Service(
+      name: 'CS SHEVA - Fadil',
+      city: 'Online',
+      address: 'Customer Service SHEVA',
+      hours: '24 Jam',
+      phone: '081243265263',
+      whatsapp: '081243265263',
+      isEmergency: false,
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=CS+SHEVA',
+    ),
+    Service(
       name: 'Rifka Annisa WCC',
       city: 'Yogyakarta',
       address: 'Yogyakarta',
@@ -171,66 +181,58 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
         backgroundColor: colors.header,
         foregroundColor: colors.text1,
         elevation: 0,
-        title: const Text(
-          'SHEVA Map',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
+        title: const Text('SHEVA Map',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
       ),
       body: Column(
         children: [
-          // 🔥 CHIP FILTER – RAPI seperti SHEVA Learn
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spacingMd,
-              vertical: AppTheme.spacingSm,
-            ),
-            child: SizedBox(
-              height: 40, // tinggi konsisten
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: filters.map((filter) {
-                  final isSelected = selectedFilter == filter;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: InkWell(
-                      onTap: () => setState(() => selectedFilter = filter),
-                      borderRadius: BorderRadius.circular(20),
-                      splashColor: colors.text1.withOpacity(0.1),
-                      highlightColor: colors.text1.withOpacity(0.05),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
+          // 🔥 CHIP SELECTOR – gaya konsisten dengan Sheva Learn
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: filters.map((filter) {
+                final isSelected = selectedFilter == filter;
+                return Padding(
+                  padding: const EdgeInsets.only(right: AppTheme.spacingSm),
+                  child: InkWell(
+                    onTap: () => setState(() => selectedFilter = filter),
+                    borderRadius: BorderRadius.circular(AppTheme.spacingLg),
+                    splashColor: colors.text1.withOpacity(0.1),
+                    highlightColor: colors.text1.withOpacity(0.05),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spacingLg,
+                        vertical: AppTheme.spacingXs,
+                      ),
+                      decoration: ShapeDecoration(
+                        color: isSelected ? colors.accentMid : colors.card,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: colors.border),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.spacingLg),
                         ),
-                        decoration: ShapeDecoration(
-                          color: isSelected ? colors.accentMid : colors.card,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: colors.border),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: Text(
-                          filter,
-                          style: TextStyle(
-                            color: colors.text1,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      ),
+                      child: Text(
+                        filter,
+                        style: TextStyle(
+                          color: colors.text1,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
           // Daftar Layanan
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.spacingMd,
-                vertical: AppTheme.spacingSm,
-              ),
+                  horizontal: AppTheme.spacingMd, vertical: AppTheme.spacingSm),
               itemCount: filteredServices.length,
               itemBuilder: (context, index) {
                 final service = filteredServices[index];
@@ -243,11 +245,7 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
             padding: const EdgeInsets.all(AppTheme.spacingSm),
             child: Text(
               'Jika dalam bahaya sekarang, hubungi SAPA 129 atau polisi 110',
-              style: TextStyle(
-                color: colors.text3,
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(color: colors.text3, fontSize: 11),
             ),
           ),
         ],
@@ -274,37 +272,26 @@ class _ShevaMapPageState extends State<ShevaMapPage> {
                 Text(
                   service.name,
                   style: TextStyle(
-                    color: colors.text1,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                      color: colors.text1,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: AppTheme.spacingXxs),
                 Text(
                   '${service.address}\n${service.hours}',
-                  style: TextStyle(
-                    color: colors.text2,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: TextStyle(color: colors.text2, fontSize: 13),
                 ),
               ],
             ),
           ),
           IconButton(
             onPressed: () => _whatsApp(service.whatsapp ?? service.phone),
-            icon: Icon(
-              Icons.phone,
-              color: colors.accent,
-              size: AppTheme.iconMain,
-            ),
+            icon: Icon(Icons.phone,
+                color: colors.accent, size: AppTheme.iconMain),
             splashRadius: 24,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(
-              minWidth: 44,
-              minHeight: 44,
-            ),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
         ],
       ),

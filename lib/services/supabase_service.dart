@@ -12,18 +12,14 @@ class SupabaseService {
     String? userId = prefs.getString('supabase_user_id');
 
     if (userId != null) {
-      // Cek apakah session masih valid
       try {
         final session = _client.auth.currentSession;
         if (session != null) {
           return userId;
         }
-      } catch (_) {
-        // Session tidak valid, buat ulang
-      }
+      } catch (_) {}
     }
 
-    // Buat user anonim baru
     final response = await _client.auth.signInAnonymously();
     final user = response.user;
     if (user != null) {
@@ -126,5 +122,22 @@ class SupabaseService {
         .select()
         .eq('user_id', userId)
         .maybeSingle();
+  }
+
+  // ============================================================
+  // HOTLINES - AMBIL DATA DARI SUPABASE
+  // ============================================================
+  Future<List<Map<String, dynamic>>> getHotlines({String? category}) async {
+    try {
+      var query = _client.from('hotlines').select('*');
+      if (category != null) {
+        query = query.eq('category', category);
+      }
+      query = query.eq('is_active', true);
+      final response = await query.order('sort_order', ascending: true);
+      return response;
+    } catch (e) {
+      return [];
+    }
   }
 }
